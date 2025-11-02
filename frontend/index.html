@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mySimple Panel - Inicio</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<header></header>
+
+<body>
+
+    <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
+    <div id="customAlert" class="alert-box">
+        <p id="alertMessage"></p>
+        <button class="btnMain" onclick="closeAlert()">Ok</button>
+    </div>
+
+    <div class="infoCredentials">
+        <form>
+            <h2>Login</h2><br>
+            <label for="e-mail">E-mail:</label>
+            <input type="text" placeholder="Digite seu e-mail" id="e-mail"></input>
+            <label for="pass">Senha:</label>
+            <input type="password" placeholder="Digite sua senha" id="pass"></input>
+            <a href="//127.0.0.1:5500/frontend/register.html">Esqueci minha senha/email</a>
+            <button class="btnMain" id="btnLogin" type="button" disabled>Entrar</button>
+            <p><a href="//127.0.0.1:5500/frontend/register.html">Clique aqui</a> para se registrar!</p>
+        </form>
+    </div>
+    <footer>© Copyright, todos os direitos reservados, 2025</footer>
+    <script type="module" src="/frontend/js/pages/index.js" defer></script>
+</body>
+
+</html>

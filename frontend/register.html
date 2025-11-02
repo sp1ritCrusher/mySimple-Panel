@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mySimple Panel - Cadastro</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<header></header>
+
+<body>
+
+    <div id="customAlert" class="alert-box">
+        <p id="alertMessage"></p>
+        <button class="btnMain" onclick="closeAlert()">Ok</button>
+    </div>
+<img class="logo" src="./assets/logo.png" alt="mySimple Panel">
+    <main class="container">
+        
+        <form id="registerForm">
+            <h2>Cadastrar</h2>
+            <div id="customAlert" class="alert-box">
+                <p id="alertMessage"></p>
+                <button class="btnMain" onclick="closeAlert()">Ok</button>
+            </div>
+            <div class="infoCredentials">
+                <label for="name">* Login:</label>
+                <p class="register">Seu login não deve:</p>
+                <p class="register">Conter espaços</p>
+                <p class="register">Conter caracteres especiais</p>
+                <input type="text" placeholder="Digite um nome de usuário" id="name"></input>
+            </div>
+
+            <div class="infoCredentials">
+                <label for="e-mail">* E-mail:</label>
+                <p class="register">email@exemplo.com</p>
+                <input type="text" placeholder="Digite seu e-mail" id="e-mail"></input>
+            </div>
+            <div class="infoCredentials">
+                <label for="pass">* Senha:</label>
+                <p class="register">Sua senha deve:</p>
+                <p class="register">Alternar entre letras e numeros</p>
+                <p class="register">Conter no mínimo 4 números</p>
+                <input type="password" placeholder="Digite sua senha" id="pass"></input><br>
+            </div>
+            <div class="infoCredentials">
+                <label for="phone-number">* Número de telefone:</label>
+                <p class="register">Digite seu numero com DDD sem espaços e sem caracteres</p>
+                <p class="register">Exemplo: 1111223344</p>
+                <input type="tel" placeholder="Digite um número de telefone válido" id="phone-number"></input>
+            </div>
+            <button class="btnMain" id="btnCadastro" type="button" disabled>Cadastrar</button>
+            <p><a href="//127.0.0.1:5500/frontend/index.html">Clique aqui</a> para retornar ao Login</p>
+        </form>
+    </main>
+    <script type="module" src="/frontend//js/pages/register.js" defer></script>
+</body>
+<footer>© Copyright, todos os direitos reservados, 2025</footer>
+
+</html>
