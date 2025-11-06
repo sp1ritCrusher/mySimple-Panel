@@ -1,54 +1,82 @@
-# mySimple Panel project — BETA 0.1v
+# mySimple Panel project — BETA 0.2v
 
-### UPDATES
+### UPDATE
 
-Eu realizei algumas mudanças em toda a estrutura do projeto nessa etapa:
+Nessa etapa eu incrementei na parte de segurança básica, intermediaria e avançada no projeto. Primeiro quis aprender do basico pra internalizar bem os conceitos, então eu joguei um bcrypt hash na senha no cadastro, mandando pro database.
 
+![alt text](<commit-imgs/1- implementando bcrypt/1-bcrypt no register.png>)
 
-### ORM e Modularizaçao
-Primeiro, eu mudei totalmente a ORM pois o Prisma+MongoDB tava me dando uma dor de cabeça absurda com muitos bugs/erros em sequencia, então eu fui de Mongoose e tive um resultado bem melhor, portanto o projeto agora se dispõe dessa ORM. Em seguida eu decidi modularizar todo o projeto, pois estava uma bagunça kk, agora ta tudo no seu devido lugar.
+Depois foi só jogar um compare no login pro servidor comparar o hash da senha e liberar o acesso:
 
-### CRUD BASICO
-O CRUD basico concluído foi um sucesso, agora temos um sistema HTML/JS criado do zero, com integração ao nosso proprio backend/database. Isso foi um marco pra mim, foi uma sensação unica construir algo assim do zero com minhas proprias maos e ideias, isso me dá mais sede pra aprender cada vez mais. Tentei lançar uma estrutura identitaria, como se fosse um produto mesmo, com varios recursos proprios, incluindo um alert personalizado em JS/HTML.
+![alt text](<commit-imgs/1- implementando bcrypt/2-bcrypt no login.png>)
 
-### FEATURES E PREVENÇOES NO LOGIN/CADASTRO
-As requisiçoes de login/cadastro ficaram muito bem articuladas, com varias prevençoes e validaçoes de possiveis erros do usuario na digitaçao dos respectivos formularios, como a exibiçao de um paragrafo em tempo real em cima dos inputs, quando o usuario não corresponde a regex que eu defini no script(voce pode acompanhar isso em "/frontend/utils/validation.js"). Os alerts sao exibidos funcionalmente, em eventos esperados como "Senha incorreta", "usuario ja cadastrado", "etc". O CRUD basicamente é:
-Um index onde o usuario loga-se, e digitando as credenciais corretas é redirecionado pra uma rota "privada"(ainda nao implementei JWT, mas será naturalmente o proximo passo, que registrarei nos proximos commits).
-Um cadastro onde são lidos os dados do formulario de acordo com o Schema criado no Model do Mongoose, é perfeitamente cadastrado, e logável.
-Uma página "main" simulando uma rota privada, que é só uma das etapas aonde eu queria chegar. Essa página contém todos os dados do usuário logado(em login inseri um pequeno localStorago pra reconhecer que o usuario esta logado pelo email, onde se o script nao reconhece, ele seta o user de volta pra index.html). E por fim, foi incrementado um botao de Deslogar, onde contem um href pra index, e o localStorage é removido(simulando um logout real).
+O resultado final foi uma senha com hash e segura no database
 
-Isso é só o Esqueleto de onde quero chegar, mas era uma meta que eu estipulei, afinal commits servem pra isso né?
+![alt text](<commit-imgs/1- implementando bcrypt/3-bcrypt no database.png>)
 
-Anyway voce pode acompanhar todos os prints na pasta "commit-imgs" que eu criei.
+Depois do bcrypt, quis aprender autenticaçao via token. Implementei um JWT simples via localStorage mesmo, so pra conhecer o conceito. Primeiro dei um sign ao logar guardando id e email do user no payload:
 
-### RECALCULO DE ROTA
-Mediante a tudo isso eu mudei bruscamente a proposta inicial do projeto, que era só criar um CRUD basico pra registro/login e um pra controle de produtos, mas eu pensei: isso é muito simples, eu quero algo mais próximo do real. Junto com esse sentimento, eu nao tinha certeza de onde aplicar um sistema de assinatura/pagamento num contexto tão basico. Então eu decidi que agora, vou tentar criar uma solução mais proxima do real. Um sistema que gerencia uma empresa de verdade:
+![alt text](<commit-imgs/2-implementando jwt(localStorage)/1-jwt sign ao logar.png>)
 
-Roles: Admin(como o proprio nome diz, gerencia todo o sistema internamente)
-Owner: Será o "proprietario" da empresa, o dono da assinatura paga, onde ele cria suas empresas, insere dados como CNPJ, endereço, cadastra funcionarios e remove, e promove a Manager.
-Manager: Usuario que simula um "gerente". Será o cara que gerencia o sistema, auxiliando o owner. Cadastra/Edita funcionarios, equipes e produtos, mas não tem permissão de remover. Atribui tarefas aos users comuns
-User: O usuario padrao que verifica produtos, estoques, setores, manda mensagens e pode apenas verificar a sua lista de tarefas.
+Em seguida criei um middleware pra checar o token na rota privada na qual eu iria criar. Criei um middleware simples, só pra teste. Utilizei o método Bearers pra mandar o token gerado no JWT sign do login pelo Headers da request, e uma assinatura simples "chaveSecreta" pois a intenção era so absorver a forma mais basica possivel pra passar pro proximo passo:
 
-É um projeto ambicioso pra um iniciante, porem vejo com bastante otimismo e acho que tenho capacidade pra produzir isso.
+![alt text](<commit-imgs/2-implementando jwt(localStorage)/2-middeware pra verificar token.png>)
 
-#################################################
+Criei a rota "/users", e antes de chamar o controller getUser, foi inserido o middleware verifyToken.
 
-PORTANTO, EU VOS APRESENTO mySimple Panel v0.1 
+![alt text](<commit-imgs/2-implementando jwt(localStorage)/3-rotas do server com get em users com middeware aplicado.png>)
 
-#################################################
----
+Então é so imprimir no front, usando o token que foi gerado pelo localStorage
+
+![alt text](<commit-imgs/2-implementando jwt(localStorage)/6-imprimindo dados do usuario no front atraves do token.png>)
+
+Aqui tem também o post/get utilizando o ThunderClient pra ficar bem nitida a dinamica:
+
+![alt text](<commit-imgs/2-implementando jwt(localStorage)/7-POST da rota login.png>)
+
+![alt text](<commit-imgs/2-implementando jwt(localStorage)/8-GET com o Bearer token.png>)
+
+Deu pra entender bem o conceito de token, porem atraves de pesquisas eu vi que armazena-lo no localStorage não é o ideal pois dá pra pegar esse token via javaScript e fazer requisições a partir dele. Pesquisei os melhores métodos de segurança atuais, e obtive a resposta de que utilizar cookies com um acessToken de curta duração, e um refreshToken de longa duração, seria o mais prudente em um sistema real. Sendo assim, eu consegui aplicar um sistema de autenticação com acces/Refresh Tokens no meu projeto. 
+
+O primeiro passo foi instalar o cookie-parser e importar em server.js. Depois foi só dar inicio a implementação:
+
+Primeiro passo:
+Atualização do controller loginUser, criando dois novos jwt.signs, um pra gerar o acessToken(coloquei com duraçao de 10s pra poder testar o refresh), e outro pra gerar o refreshToken que tem longa duraçao. Em seguida foi só atribuir duas responses com cookies, um pro seu respectivo Token:
+
+![alt text](<commit-imgs/3-implementando JWT com cookies/1-novo controller pra rota login.png>)
+
+Tive uma dor de cabeça tremenda com esses cookies, por conta do ambiente de desenvolvimento. Tive que me informar sobre as atribuiçoes dos cookies. O samesite: none tava bloqueando o acesso do front ao back, pois o dominio era diferente(front em 127.0.0.1:5500, e o back em localhost:3000). Mesmo autorizando no CORS ele não dava acesso de jeito nenhum. Pesquisei bastante, quebrei a cabeça, e a solução foi mudar o dominio do servidor, que passou a rodar em 127.0.0.1:3000. Vi que isso é normal, pois o ambiente está em desenvolvimento(utilizando o mesmo host), oque causa um conflito interno. Pra resolver isso se eu fosse jogar o projeto em produçao era so ativar o https e jogar o samesite pra none. Nesse caso eu tive que deixar o secure: false(https desativado) e o samesite em lax.
+
+O segundo passo foi criar um secret coerente com segurança real. Criei um dotenv contendo uma chave segura com criptografia, e chamei no controller de login(como pode ver no print acima) e no jwt.verify do middleware:
+
+![alt text](<commit-imgs/3-implementando JWT com cookies/2 - middleware da rota users.png>)
+
+![alt text](<commit-imgs/3-implementando JWT com cookies/5-dotenv do secret das assinaturas.png>)
+
+Terceiro passo: Foi a criaçao em si da rota /refresh atraves de um novo controller authController.js. Consiste em 
+receber o refreshToken que foi atribuido no login atraves de um fetch(que vou mostrar em breve), verifica-lo com jwt.verify, e ver de "quem é" o refresh token com o payload e o secret. A partir disso, atribuir um novo acessToken pro usuario, e mandar numa response via cookies pro front.
+
+![alt text](<commit-imgs/3-implementando JWT com cookies/4- controller da rota refresh.png>)
+
+O quarto passo foi ajustar o front pra trabalhar com cookies, atraves do "credentials: include" inserido na request:
+
+![alt text](<commit-imgs/3-implementando JWT com cookies/6 - fetch do front pra rota login.png>)
+
+O quinto e ultimo passo foi ajustar a function que contem o fetch da rota privada, que seria getUser na API. Basicamente o fetch exige o "credentials: include", procedimento padrão, onde a requisição exige cookies, que estão no navegador. O navegador recebe o recado, e manda a request pro server com o conteúdo dos cookies(os tokens), e volta com a response. Se a response não retornar ".ok", o front manda outra requisiçao pra /refresh.  Se o token bater, o server da a response ok. Então foi criada uma lógica onde se a response do refreshToken for ok(com um novo acessToken criado), o front dá um "retry" em /users com esse mesmo novo Token.
+
+![alt text](<commit-imgs/3-implementando JWT com cookies/7 - fetch do front pra rota privada users.png>)
+
+# CONCLUSOES
+
+Eu pensei bem, e vi que não faria sentido criar um projeto tão extenso assim. Quis criar uma solução real, mas creio que devo dar prioridade a replicar essa dinamica de criação em outros projetos até internalizar 100% a base Node.js/Express. Vou apenas criar um CRUD simples de produtos, só pra não ficar muito simples, e já vou partir pra outro projeto do zero. Aqui está a versão 0.2 desse projeto, com segurança implementada. Enjoy
 
 ## Roadmap ATUAL
 - [x] Página de Login — #Start Point  
 - [x] Integração inicial com backend (API própria)  
 - [x] CRUD básico com Fetch (vanilla) 
-- [ ] Implementar JWT/bcrypt
+- [x] Implementar JWT/bcrypt
 - [ ] CRUD completo de produtos  
 - [ ] Implementar roles simples: user / admin  
-- [ ] Integração com API de pagamentos  
-- [ ] Implementar outros models e seus sistemas: empresa, constituida por 1 owner, x managers, e x funcionarios
-- [ ] Upload de imagens pra funcionarios/managers 
-- [ ] Testes e otimizações finais
 
 
 Developed by sp1ritCrusher,2025

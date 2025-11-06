@@ -4,15 +4,12 @@ import { registerUser } from "../utils/api.js";
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM Loaded");
 
-  //let nameValid, emailValid, passwordValid, phoneValid;
   //userdata
   const name = document.getElementById("name");
   const password = document.getElementById("pass");
   const email = document.getElementById("e-mail");
   const phone = document.getElementById("phone-number");
   const btnCadastro = document.getElementById("btnCadastro");
-  //const { nameValid, emailValid, passwordValid, phoneValid } = validateForm(name, email, password, phone);
-  //console.log({ emailValid, passwordValid });
 
   function updateButtonState() {
     const { nameValid, emailValid, passwordValid, phoneValid } = validateForm(name,email,password,phone);

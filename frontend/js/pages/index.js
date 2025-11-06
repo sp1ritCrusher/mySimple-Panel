@@ -63,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const result = await loginUser(UserData);
       console.log("Server response:", result);
-      localStorage.setItem("loggedUserEmail", email.value);
       window.location.href = "main.html";
     } catch (error) {
       showAlert(error.message);

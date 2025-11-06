@@ -1,6 +1,6 @@
 export async function registerUser(userData) {
   try {
-    const response = await fetch("http://localhost:3000/register", {
+    const response = await fetch("http://127.0.0.1:3000/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,39 +21,61 @@ export async function registerUser(userData) {
 
 export async function loginUser(userData) {
   try {
-    const response = await fetch("http://localhost:3000/login", {
+    const response = await fetch("http://127.0.0.1:3000/login", {
       method: "POST",
+      credentials: "include",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(userData),
     });
+
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "User logged sucessfully");
+      throw new Error(data.message || "Erro ao logar-se");
     }
 
-    return await response.json();
+    return data;
   } catch (error) {
     console.error("Error:", error);
     throw error;
   }
 }
 
-export async function getUser(user) {
+export async function getUser() {
   try {
-    const response = await fetch("http://localhost:3000/users", {
-      method: "POST",
+    const response = await fetch("http://127.0.0.1:3000/users", {
+      method: "GET",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(user),
     });
-    if (!response.ok) throw new Error("User not found");
+      if (!response.ok) {
+        const refreshResponse = await fetch("http://127.0.0.1:3000/refresh", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+        "Content-Type": "application/json",
+      },
+        });
+      if(refreshResponse.ok) {
+        console.log("Token renovado com sucesso");
+        const retry = await fetch("http://127.0.0.1:3000/users", {
+          method: "GET",
+          credentials: "include",
+        });
+        return await retry.json();
+      } else {
+        console.log("Erro ao renovar token");
+      }
+      }
+    const data = await response.json();
+    console.log("Usuario logado: ", data);
+    return data;
 
-    return await response.json();
-  } catch (error) {
+    } catch (error) {
     console.error("Error:", error);
-    throw error;
   }
 }
