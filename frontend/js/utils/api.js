@@ -1,3 +1,4 @@
+
 export async function registerUser(userData) {
   try {
     const response = await fetch("http://127.0.0.1:3000/register", {
@@ -31,7 +32,7 @@ export async function loginUser(userData) {
     });
 
     const data = await response.json();
-
+    localStorage.setItem("loggedUser", "true");
     if (!response.ok) {
       throw new Error(data.message || "Erro ao logar-se");
     }
@@ -58,7 +59,7 @@ export async function getUser() {
         credentials: "include",
         headers: {
         "Content-Type": "application/json",
-      },
+        },
         });
       if(refreshResponse.ok) {
         console.log("Token renovado com sucesso");
@@ -79,3 +80,22 @@ export async function getUser() {
     console.error("Error:", error);
   }
 }
+
+export async function logoutUser() {
+  try {
+    const response = await fetch("http://127.0.0.1:3000/logout", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    console.log("Usuario deslogado: ", data);
+    localStorage.setItem("loggedUser", "false");
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+

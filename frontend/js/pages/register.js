@@ -3,6 +3,9 @@ import { registerUser } from "../utils/api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM Loaded");
+  if (localStorage.getItem("loggedUser") === "true") {
+    window.location.href = "main.html";
+  }
 
   //userdata
   const name = document.getElementById("name");

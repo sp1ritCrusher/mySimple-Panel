@@ -56,4 +56,3 @@
     if (alertBox) alertBox.style.display = "none";
   }
      window.closeAlert = closeAlert;
-

@@ -1,16 +1,17 @@
 import jwt from "jsonwebtoken";
+import { Blacklist } from "../models/Blacklist.js";
 
 export async function checkRefresh(req, res) {
   const token = req.cookies.refreshToken;
-  console.log("Token bruto:", token);
-  console.log("JWT_REFRESH_SECRET:", process.env.JWT_REFRESH_SECRET);
   if (!token) {
     return res.status(401).json({ message: "Refresh não encontrado" });
   }
 
-  try {
+    try {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    console.log("Decoded:", decoded);
+    const isvalidToken = await Blacklist.findOne({ userid:decoded.id });
+    if(!isvalidToken) { res.status(403).json({ message: "Erro: Token revogado"}); }
+
     const newaccessToken = jwt.sign(
       {
         id: decoded.id,
@@ -19,7 +20,6 @@ export async function checkRefresh(req, res) {
       process.env.JWT_SECRET,
       { expiresIn: "10s" }
     );
-    console.log("Novo token", newaccessToken);
     res.cookie("accessToken", newaccessToken, {
       httpOnly: true,
       secure: false,

@@ -1,4 +1,4 @@
-import { getUser } from "../utils/api.js";
+import { getUser, logoutUser } from "../utils/api.js";
 
 const btnLogout = document.getElementById("btnLogout");
 document.addEventListener("DOMContentLoaded", async () => {
@@ -11,9 +11,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("email").textContent = `Email: ${result.user.email}`;
     document.getElementById("phone").textContent = `Telefone: ${result.user.phone}`;
   } catch (error) {
-    alert("Error finding user:" + error.message);
+    alert("Erro: logue-se novamente");
+    localStorage.setItem("loggedUser", "false");
+    window.location.href = "index.html";
   }
   btnLogout.addEventListener("click", async (e) => {
+    try {
+    const logout = await logoutUser();
+    console.log("Server response:", logout);
     window.location.href = "index.html";
-  });
+  } catch(error) {
+    console.log("Falha ao deslogar",error);
+  }
+});
 });

@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
-console.log("JWT_Secret VT loaded:", !!process.env.JWT_SECRET);
 export const verifyToken = (req, res, next) => {
     const token = req.cookies.accessToken;
-    if(!token) {
-        return res.status(401).json({ message: "Token não encontrado"});
+    const sessionId = req.cookies.sessionId;
+    if(!token || !sessionId) {
+        return res.status(401).json({ message: "Token não encontrado/sessao nao iniciada"});
     }
 
     try {
