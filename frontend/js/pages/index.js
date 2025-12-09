@@ -1,12 +1,11 @@
-import { validateLogin, showError, clearError, showAlert} from "../utils/validation.js";
+import { validateLogin, showError, clearError} from "../utils/validation.js";
 import { loginUser } from "../utils/api.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+/* Página Inicial */
+
+document.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM Loaded");
-  if (localStorage.getItem("loggedUser") === "true") {
-    window.location.href = "main.html";
-  }
-  //userdata;
+
   const password = document.getElementById("pass");
   const email = document.getElementById("e-mail");
   const btnLogin = document.getElementById("btnLogin");
@@ -16,12 +15,26 @@ document.addEventListener("DOMContentLoaded", () => {
     btnLogin.disabled = !(emailValid) || !password.value.trim() || !email.value.trim();
   }
 
+  //Checando se o usuário já tem uma sessão iniciada 
 
-  // CADASTRO
+  const checkSession = await fetch("http://127.0.0.1:3000/users", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+ 
+    if(checkSession.ok) {
+
+      window.location.href = "./main.html"
+
+    }
+
+  // Login
+
   email.addEventListener("blur", () => {
     const { emailValid } = validateLogin(email,password);
-    console.log("input detected");
-    console.log({ email: email.value });
 
     if (!emailValid && email.value.trim() !== " ") {
       showError(email, "Erro: email inválido");
@@ -42,21 +55,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   password.addEventListener("input", () => {
-    const { passwordValid } = validateLogin(email,password);
-    console.log("input detected");
-    console.log({ password: password.value });
 
- /*   if (!passwordValid && password.value.trim() !== "") {
+   if (password.value.trim() == "") {
       showError(password, "Erro: senha inválida");
     } else {
       clearError(password);
-    }*/
+    }
     updateButtonState();
   });
 
 
   btnLogin.addEventListener("click", async () => {
-    console.log("btn clicked");
     const UserData = {
       email: email.value,
       password: password.value,
@@ -64,10 +73,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const result = await loginUser(UserData);
-      console.log("Server response:", result);
       window.location.href = "main.html";
     } catch (error) {
-      showAlert(error.message);
+      alert(error.message);
     }
   });
 });

@@ -1,12 +1,12 @@
 * {
     font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
 }
 
-
 body {
+    padding: 0;
     min-height: 100vh;
     margin: 0;
-    display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -16,8 +16,45 @@ body {
     background-size: cover;
 }
 
+.mainpages {
+    display: flex;
+    padding: 0;
+    min-height: 100vh;
+    margin: 0;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-image: linear-gradient(to bottom, #ffffff, #e9f3ff, #bdecff, #7ce7ff, #12e2eb);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .container {
     flex: 1;
+}
+
+footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 14px;
+}
+
+.Products {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 form {
@@ -37,7 +74,7 @@ form {
 h1 {
     padding: 0px;
     text-align: center;
-    color:#ffffff;
+    color: #ffffff;
     margin: 0px;
     border-radius: 10px;
 }
@@ -51,6 +88,7 @@ h2 {
     text-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     letter-spacing: 0px;
 }
+
 input:focus {
     background-color: #ceeff3;
     border-color: #00bcd4;
@@ -105,7 +143,9 @@ button.btnMain {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-
+footer {
+    margin-top: auto;
+}
 
 button.btnMain:hover {
     background-color: #00bcd4;
@@ -113,11 +153,6 @@ button.btnMain:hover {
     transition: all 0.25 ease;
 }
 
-footer {
-    text-align: center;
-    padding: 10px 0;
-    font-size: 14px;
-}
 
 p {
     font-size: 12px;
@@ -134,6 +169,7 @@ p.register {
 }
 
 a {
+    text-decoration: none;
     font-size: 12px;
 }
 
@@ -148,11 +184,10 @@ a {
 }
 
 .infoCredentials {
-    align-items: baseline;
+    align-items: center;
     display: flex;
     flex-direction: column;
     text-align: center;
-    display: inline-block;
     justify-content: center;
     padding: 5px;
     margin: 5px;
@@ -160,7 +195,7 @@ a {
 
 label {
     font-size: 15px;
-}   
+}
 
 .showInfo {
     display: flex;
@@ -187,4 +222,405 @@ label {
 
 .alert-box p {
     font-size: 15px;
+}
+
+.top-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header-top {
+    width: 100%;
+    padding: 10px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    height: 60px;
+}
+
+.user-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: black;
+}
+
+.dropdown {
+    display: none;
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    right: 40px;
+    top: 70px;
+}
+
+.user-menu:hover .dropdown {
+    display: block;
+}
+
+.navbar {
+    width: 100%;
+    background-color: #12E2EB;
+    padding: 25px 0;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    font-size: 15px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.nav-links a:hover {
+    transform: scale(1.2);
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.nav-links li a {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+.selected {
+    background-color: #a5f5f1;
+    border-radius: 10px;
+}
+
+.printUser {
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.products {
+    gap: 30px;
+    width: 1000px;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background-color: rgb(248, 248, 248);
+    padding: 40px 60px;
+    margin: 0px;
+    border-radius: 10px;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.40);
+    position: relative;
+}
+
+.Administrador {
+    gap: 5px;
+    width: 120vh;
+    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: rgb(248, 248, 248);
+    padding: 15px;
+    margin: 0px;
+    border-radius: 10px;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.40);
+    position: relative;
+}
+
+.usersHeader {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.usersHeader h2 {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+}
+
+.usersHeader input {
+  margin-left: auto;
+  width: 220px;
+}
+
+.adminOptions {
+    display: flex;
+    align-items: stretch;
+    gap: 30px;
+}
+
+.content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    margin: 20px;
+    align-items: center;
+}
+
+.table-products {
+    justify-content: center;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-top: 20px;
+}
+
+.table-products th {
+    color: rgb(0, 0, 0);
+    padding: 12px;
+    text-align: left;
+    font-size: 16px;
+    border-right: 1px solid #ccc;
+}
+
+.table-products td {
+    border-right: 1px solid #ccc;
+    padding: 12px;
+    font-size: 14px;
+}
+
+.table-products th:last-child,
+.table-products td:last-child {
+    border-right: none;
+}
+
+.table-products tr,
+.table-products th {
+    border-bottom: 1px solid #ccc;
+}
+
+.table-products tr:last-child {
+    border-bottom: none;
+}
+
+.table-products tr:hover {
+    background-color: #f0efef;
+    transition: .2s;
+}
+
+.icon {
+    gap: 20px;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    transition: 0.25;
+}
+
+.icon:hover {
+    transform: scale(1.15);
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.productsHeader {
+    display: grid;
+    grid-template-columns: 220px 1fr 220px;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.productsHeader h2 {
+    text-align: center;
+}
+
+.productsHeader button, .productsHeader input {
+    width: 220px;
+}
+
+.productsHeader input {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    width: 250px;
+}
+
+.productsHeader2 {
+    display: grid;
+    grid-template-columns: 70px 130px 1fr 230px;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.productsHeader2 img {
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+    width: 70px;
+    height: 70px;
+}
+
+
+.productsHeader2 h2 {
+    text-align: center;
+}
+
+.productsHeader2 button, .productsHeader input {
+    width: 220px;
+}
+
+.productsHeader2 input {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    width: 250px;
+}
+
+.pagination {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.page-btn {
+    padding: 5px 12px;
+    background: #12E2EB;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.page-btn.active {
+    background: #00bcd4;
+}
+
+.addProduct {
+    margin-top: 24px;
+    display: flex;
+}
+.dropdown {
+    padding: 15px;
+    margin: 15px;
+}
+
+.dropdown li {
+    margin: 10px;
+}
+
+.dropdown a {
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
+}
+
+.productForm {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: center;
+    justify-items: center;
+}
+
+.formRow {
+    margin-bottom: 20px;
+    gap: 16px;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+
+.formRow label {
+    font-size: 15px;
+    width: 140px;
+    font-weight: 500;
+    text-align: center;
+}
+.formRow input {
+    padding: 20px;
+    flex: 1;
+}
+
+.infoUser {
+    justify-content: center;
+    display: flex;
+    margin: 20px;
+}
+.infoUser form{
+    gap: 3px;
+    display: flex;
+    width: 90vh;
+    height:65vh;
+    align-items: center;
+}
+
+.return-icon {
+    display: grid;
+    grid-template-columns: 220px 1fr 220px;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 24px;
+    justify-content: center;
+}
+
+.return-icon h2 {
+    text-align: center;
+}
+
+.usersHeader img {
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+    width: 70px;
+    height: 70px;
+}
+
+
+.editProducts-btns {
+  display: flex;
+  flex-direction: row;     /* coloca os botões lado a lado */
+  gap: 20px;               /* espaço entre eles */
+  justify-content: center; /* centraliza os botões no container */
+  align-items: center;     /* alinha verticalmente */
+}
+
+.userForm {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+}
+
+.passForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+#editForm {
+    display: flex;
+    height: auto;
+    gap: 30px;
+    padding: 15px;
 }

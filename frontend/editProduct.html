@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+
+<body>
+    <div class="page">
+        <header class="top-header">
+            <div class="header-top">
+                <div class="left-space"></div>
+                <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
+                <div class="user-menu">
+                    <button id="userButton" class="user-btn">
+                        <p class="printUser" id="name"></p>
+                    </button>
+                    <ul id="userDropdown" class="dropdown">
+                        <li><a href="./data.html">Meus Dados</a></li>
+                        <li><a href="./config">Configurações</a></li>
+                        <li id="logout"><a href="#">Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+            <nav class="navbar">
+                <ul id="mainnavbar" class="nav-links">
+                    <li><a href="main.html">Início</a></li>
+                    <li class="selected"><a href="#">Meus Produtos</a></li>
+                    <li><a href="#">Ajuda</a></li>
+                    <li><a href="#">Sobre Nós</a></li>
+                </ul>
+            </nav>
+
+        </header>
+        <div class="content">
+            <form class="products">
+                <div class="usersHeader">
+                    <a href="./products.html"><img class="icon" src="./assets/return.png" alt="Retornar"></a>
+                    <h2>Editar produto</h2>
+                </div>
+                <div id="productForm" class="productForm">
+                    <div class="formRow">
+                        <label for="nameInput">Novo nome:</label>
+                        <input type="text" placeholder="Digite o nome do produto" id="nameInput"></input>
+                    </div>
+                    <div class="formRow">
+                        <label for="descInput">Nova descrição:</label>
+                        <input type="text" placeholder="Digite a descrição do produto" id="descInput"></input>
+                    </div>
+                    <div class="formRow">
+                        <label for="priceInput">Novo preço(BRL):</label>
+                        <input type="number" placeholder="Digite o preço do produto" id="priceInput"></input>
+                    </div>
+                    <div class="formRow">
+                        <label for="ammountInput">Nova quantidade</label>
+                        <input type="number" placeholder="Digite a quantidade do produto" id="ammountInput"></input>
+                    </div>
+                </div>
+                <div class="editProducts-btns">
+                    <button class="btnMain" id="submitbtn" type="submit">Salvar alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="module" src="/frontend/js/pages/editProduct.js" defer></script>
+</body>
+
+</html>

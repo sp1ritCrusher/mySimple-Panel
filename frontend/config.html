@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+
+<body>
+    <div class="page">
+        <header class="top-header">
+            <div class="header-top">
+                <div class="left-space"></div>
+                <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
+                <div class="user-menu">
+                    <button id="userButton" class="user-btn">
+                        <p class="printUser" id="name"></p>
+                    </button>
+                    <ul id="userDropdown" class="dropdown">
+                        <li><a href="./data.html">Meus Dados</a></li>
+                        <li><a href="./config.html">Configurações</a></li>
+                        <li id="logout"><a href="#">Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+            <nav class="navbar">
+                <ul id="mainnavbar" class="nav-links">
+                    <li><a href="main.html">Início</a></li>
+                    <li><a href="products.html">Meus Produtos</a></li>
+                    <li><a href="#">Ajuda</a></li>
+                    <li><a href="#">Sobre Nós</a></li>
+                </ul>
+            </nav>
+            <div class="infoUser">
+                <form id="editForm">
+                    <h2>Configurações de usuário</h2>
+                    <div id="userForm" class="userForm">
+                        <input id="inputName" style="display: none;"
+                            placeholder="Insira seu novo nome de usuário"></input>
+                        <h3 id="nome">Nome:</h3>
+                        <img class="icon edit-name" src="./assets/edit.png">
+                        <img class="icon confirm-name" src="./assets/confirm.png" style="display: none;">
+                        <img class="icon undo-name" src="./assets/undo.png" style="display: none;">
+                    </div>
+                    <div id="userForm" class="userForm">
+                        <div class="passForm">
+                        </div>
+                        <h3 id="pass">Senha: ********</h3>
+                        <a href="changePass.html"><img class="icon edit-pass" src="./assets/edit.png"></a>
+                    </div>
+                    <div id="userForm" class="userForm">
+                        <label style="display: none;" for="inputEmail">Nome</label>
+                        <input id="inputEmail" style="display: none;" placeholder="Insira seu novo email"></input>
+                        <h3 id="email">Email:</h3>
+                        <img class="icon edit-email" src="./assets/edit.png">
+                        <img class="icon confirm-email" src="./assets/confirm.png" style="display: none;">
+                        <img class="icon undo-email" src="./assets/undo.png" style="display: none;">
+                    </div>
+                    <div id="userForm" class="userForm">
+                        <label style="display: none;" for="inputPhone">Nome</label>
+                        <input id="inputPhone" style="display: none;" placeholder="Insira seu novo telefone"></input>
+                        <h3 id="telefone">Telefone:</h3>
+                        <img class="icon edit-phone" src="./assets/edit.png">
+                        <img class="icon confirm-phone" src="./assets/confirm.png" style="display: none;">
+                        <img class="icon undo-phone" src="./assets/undo.png" style="display: none;">
+                    </div>
+                    <button type="submit" id="submitbtn" class="btnMain">Salvar</button>
+                </form>
+            </div>
+            <script type="module" src="/frontend/js/pages/config.js" defer></script>
+        </header>
+    </div>
+</body>
+
+</html>

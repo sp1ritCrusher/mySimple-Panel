@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
@@ -9,17 +9,31 @@
 </head>
 
 <body>
-    <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
-    <div class="container">
-        <h2>Você obteve acesso ao nosso portal!</h2>
-        <p class="showInfo">Seja bem vindo, aqui estão seus dados:</p>
-        <p id="name" class="showInfo"></p>
-        <p id="email" class="showInfo"></p>
-        <p id="phone" class="showInfo"></p>
-        <button id="btnLogout"class="btnMain" type="button">Sair</button>
+<div class="page">
+    <header class="top-header">
+        <div class="header-top">
+            <div class="left-space"></div>
+            <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
+            <div class="user-menu">
+                <button id="userButton" class="user-btn"><p class="printUser" id="name"></p></button>
+                <ul id="userDropdown" class="dropdown">
+                    <li><a href="./data.html">Meus Dados</a></li>
+                    <li><a href="./config.html">Configurações</a></li>
+                    <li id="logout"><a href="#">Sair</a></li>
+                </ul>
+            </div>
+        </div>
+        <nav class="navbar">
+            <ul id="mainnavbar" class="nav-links">
+                <li class="selected"><a href="#">Início</a></li>
+                <li><a href="products.html">Meus Produtos</a></li>
+                <li><a href="#">Ajuda</a></li>
+                <li><a href="#">Sobre Nós</a></li>
+            </ul>
+        </nav>
+        <script type="module" src="/frontend/js/pages/main.js" defer></script>
+    </header>
     </div>
-
-    <script type="module" src="/frontend/js/pages/main.js" defer></script>
 </body>
-    <footer>© Copyright, todos os direitos reservados, 2025</footer>
+
 </html>

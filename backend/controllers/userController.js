@@ -3,6 +3,10 @@ import { Blacklist } from "../models/Blacklist.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
+/* Controles de usuário */
+
+
+/* Autenticação - login */
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -12,12 +16,11 @@ export const loginUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Usuário não encontrado" });
     }
-    //hash check
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Senha invalida" });
     }
-
+    //valida e remove sessão dupla
     const alreadyLogged = await Blacklist.findOne({ userid: user._id });
     if (alreadyLogged) {
       await Blacklist.findOneAndDelete({ userid: user._id });
@@ -27,25 +30,27 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    //jwt sign
+    //atribuição de refresh/access tokens
     const accessToken = jwt.sign(
       {
         id: user._id,
         email: user.email,
+        power: user.power
       },
       process.env.JWT_SECRET,
-      { expiresIn: "10s" }
+      { expiresIn: "1d" }
     );
     const refreshToken = jwt.sign(
       {
         id: user._id,
         email: user.email,
+        power: user.power
       },
       process.env.JWT_REFRESH_SECRET,
       { expiresIn: "7d" }
     );
 
-    //blacklist system
+    //adiciona os dados na blacklist
     const salt = await bcrypt.genSalt(10);
     const uuid = uuidv4();
     const hashedToken = await bcrypt.hash(refreshToken, salt);
@@ -56,7 +61,7 @@ export const loginUser = async (req, res) => {
     });
     await addBlacklist.save();
 
-    //
+    //Atribuição de cookies
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: false,
@@ -75,25 +80,26 @@ export const loginUser = async (req, res) => {
       sameSite: "lax",
       maxAge: 3 * 60 * 60 * 1000,
     });
-    res
-      .status(200)
-      .json({ message: "Login bem-sucedido", user});
+    res.status(200).json({ message: "Login bem-sucedido", user});
   } catch (error) {
     console.error("Erro ao logar:", error);
     res.status(500).json({ message: "Erro ao logar:", error });
   }
 };
 
+/* Registro de usuário */
+
 export const registerUser = async (req, res) => {
   try {
     const salt = await bcrypt.genSalt(10);
     const { name, password, email, phone } = req.body;
+    const power = "user";
     const hashedPass = await bcrypt.hash(password, salt);
     const existingUser = await User.findOne({ $or: [{ email }, { name }] });
     if (existingUser) {
       return res.status(400).json({ message: " Usuario ja cadastrado" });
     }
-    const newUser = new User({ name, password: hashedPass, email, phone });
+    const newUser = new User({ name, password: hashedPass, email, phone, power: power, registeredProducts: 0});
     await newUser.save();
 
     res
@@ -105,21 +111,28 @@ export const registerUser = async (req, res) => {
   }
 };
 
+/* Listagem de usuário */
+
 export const getUser = async (req, res) => {
+  //reutilização em rotas pra roles diferentes(user/admin)
+  const id = req.params.id || req.user.id;
   try {
-    const findUser = await User.findById(req.user.id).select("-password");
+    const findUser = await User.findById(id).select("-password");
     if (!findUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Usuario não encontrado" });
     }
-    res.status(200).json({ message: "User found", user: findUser });
+    res.status(200).json({ message: "Usuário encontrado:", user: findUser });
   } catch (error) {
-    console.error("Error finding user", error);
-    res.status(500).json({ message: "Error finding user", error });
+    console.error("Erro ao encontrar usuário", error);
+    res.status(500).json({ message: "Erro ao encontrar usuário", error });
   }
 };
 
+/* Logout - encerramento de sessão */
+
 export const logoutUser = async (req, res) => {
   try {
+    //Identifica user pelo refresh e apaga os dados da blacklist
     const token = req.cookies.refreshToken;
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
     const deleteHashed = await Blacklist.findOneAndDelete({
@@ -128,6 +141,7 @@ export const logoutUser = async (req, res) => {
     if (!deleteHashed) {
       res.status(401).json({ message: "Erro, refresh não encontrado" });
     }
+    //remoção dos cookies
     res.clearCookie("accessToken", {
       sameSite: "lax",
       secure: false,
@@ -146,3 +160,15 @@ export const logoutUser = async (req, res) => {
     res.status(500).json({ message: "Erro ao deslogar", error });
   }
 };
+
+/* Atualização de dados do usuário */
+
+export const editData = async(req,res) => {
+  try {
+    const user = jwt.verify(req.cookies.refreshToken,process.env.JWT_REFRESH_SECRET);
+    const updateUser = await User.findByIdAndUpdate(user.id, { name: req.body.name, email: req.body.email, phone: req.body.phone}) ;
+    res.status(200).json({message: "Usuario atualizado com sucesso", data: updateUser});
+  } catch(error) {
+    res.status(500).json({message: "Erro ao atualizar os dados"}, error);
+  }
+}

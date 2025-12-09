@@ -34,9 +34,16 @@ const userSchema = new mongoose.Schema( {
         type: String,
         required: true,
         trim: true
+    },
+    power:
+    {
+        type: String,
+    },
+
+    registeredProducts: 
+    {
+        type: Number,
     }
-
-
 });
 
 export const User = mongoose.model("User", userSchema);

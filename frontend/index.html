@@ -10,29 +10,30 @@
     <title>mySimple Panel - Inicio</title>
     <link rel="stylesheet" href="/frontend/css/style.css">
 </head>
-<header></header>
 
-<body>
+<body class="mainpages">
 
-    <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
     <div id="customAlert" class="alert-box">
         <p id="alertMessage"></p>
         <button class="btnMain" onclick="closeAlert()">Ok</button>
     </div>
-
-    <div class="infoCredentials">
-        <form>
-            <h2>Login</h2><br>
-            <label for="e-mail">E-mail:</label>
-            <input type="text" placeholder="Digite seu e-mail" id="e-mail"></input>
-            <label for="pass">Senha:</label>
-            <input type="password" placeholder="Digite sua senha" id="pass"></input>
-            <a href="//127.0.0.1:5500/frontend/register.html">Esqueci minha senha/email</a>
-            <button class="btnMain" id="btnLogin" type="button" disabled>Entrar</button>
-            <p><a href="//127.0.0.1:5500/frontend/register.html">Clique aqui</a> para se registrar!</p>
-        </form>
+    <div class="page">
+        <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
+        <div class="infoCredentials">
+            <form>
+                <h2>Login</h2><br>
+                <label for="e-mail">E-mail:</label>
+                <input type="text" placeholder="Digite seu e-mail" id="e-mail"></input>
+                <label for="pass">Senha:</label>
+                <input type="password" placeholder="Digite sua senha" id="pass"></input>
+                <a href="//127.0.0.1:5500/frontend/register.html">Esqueci minha senha/email</a>
+                <button class="btnMain" id="btnLogin" type="button" disabled>Entrar</button>
+                <p><a href="//127.0.0.1:5500/frontend/register.html">Clique aqui</a> para se registrar!</p>
+            </form>
+        </div>
+        <footer>© Copyright, todos os direitos reservados, 2025</footer>
     </div>
-    <footer>© Copyright, todos os direitos reservados, 2025</footer>
+
     <script type="module" src="/frontend/js/pages/index.js" defer></script>
 </body>
 

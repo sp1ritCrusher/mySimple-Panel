@@ -1,5 +1,7 @@
-import { validateForm, showError, clearError, showAlert } from "../utils/validation.js";
+import { validateForm, showError, clearError } from "../utils/validation.js";
 import { registerUser } from "../utils/api.js";
+
+/* Registro de novo usuário */
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM Loaded");
@@ -7,7 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = "main.html";
   }
 
-  //userdata
   const name = document.getElementById("name");
   const password = document.getElementById("pass");
   const email = document.getElementById("e-mail");
@@ -20,7 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  // CADASTRO
+  // Cadastro com validação de dados
+
   name.addEventListener("blur", () => {
     const { nameValid } = validateForm(name,email,password,phone);
     console.log("input detected");
@@ -95,11 +97,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const result = await registerUser(UserData);
-      await showAlert("Usuário criado com sucesso");
+      const data = await result.json();
+      if(result.ok) {
+      alert("Usuário criado com sucesso");
       window.location.href = "index.html";
-      console.log("Server response:", result);
+      } else {
+        alert(data.message);
+      }
     } catch (error) {
-      showAlert(error.message);
+      alert(error.message);
     }
   });
 });

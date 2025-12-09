@@ -1,4 +1,7 @@
 import jwt from "jsonwebtoken";
+
+/* Verificação e proteção de rotas */
+
 export const verifyToken = (req, res, next) => {
     const token = req.cookies.accessToken;
     const sessionId = req.cookies.sessionId;
@@ -8,7 +11,6 @@ export const verifyToken = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(decoded);
         req.user = decoded;
         next();
     } catch (error) {

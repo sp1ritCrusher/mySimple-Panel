@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+
+<body>
+    <div class="page">
+        <header class="top-header">
+            <div class="header-top">
+                <div class="left-space"></div>
+                <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
+                <div class="user-menu">
+                    <button id="userButton" class="user-btn">
+                        <p class="printUser" id="name"></p>
+                    </button>
+                    <ul id="userDropdown" class="dropdown">
+                        <li><a href="./data.html">Meus Dados</a></li>
+                        <li><a href="./config">Configurações</a></li>
+                        <li id="logout"><a href="#">Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+            <nav class="navbar">
+                <ul id="mainnavbar" class="nav-links">
+                    <li><a href="main.html">Início</a></li>
+                    <li class="selected"><a href="#">Meus Produtos</a></li>
+                    <li><a href="#">Ajuda</a></li>
+                    <li><a href="#">Sobre Nós</a></li>
+                </ul>
+            </nav>
+
+        </header>
+        <div class="content">
+            <form class="products">
+                <div class="usersHeader">
+                    <a href="./products.html"><img class="icon" src="./assets/return.png" alt="Retornar"></a>
+                    <h2>Adicionar produto</h2>
+                </div>
+                <div class="productForm">
+                    <div class="formRow">
+                        <label for="productName">Nome:</label>
+                        <input placeholder="Digite o nome do produto" id="productName"></input>
+                    </div>
+                    <div class="formRow">
+                        <label for="description">Descrição:</label>
+                        <input placeholder="Digite a descrição do produto" id="description"></input>
+                    </div>
+                    <div class="formRow">
+                        <label for="price">Preço(BRL):</label>
+                        <input placeholder="Digite o preço do produto" id="price"></input>
+                    </div>
+                    <div class="formRow">
+                        <label for="ammount">Quantidade inicial:</label>
+                        <input placeholder="Digite a quantidade do produto" id="ammount"></input>
+                    </div>
+                </div>
+                    <button class="btnMain" id="btnAddProduct">Adicionar Produto</button>
+            </form>
+        </div>
+    </div>
+    <script type="module" src="/frontend/js/pages/addProducts.js" defer></script>
+</body>
+
+</html>

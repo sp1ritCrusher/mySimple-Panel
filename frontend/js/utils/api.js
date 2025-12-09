@@ -1,4 +1,6 @@
+/* API client-side */
 
+// Registro de usuário
 export async function registerUser(userData) {
   try {
     const response = await fetch("http://127.0.0.1:3000/register", {
@@ -20,13 +22,14 @@ export async function registerUser(userData) {
   }
 }
 
+// Login de usuário
 export async function loginUser(userData) {
   try {
     const response = await fetch("http://127.0.0.1:3000/login", {
       method: "POST",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
     });
@@ -44,6 +47,9 @@ export async function loginUser(userData) {
   }
 }
 
+// GET pra pegar o usuário via cookies/tokens(refresh e access)
+//Caso o accessToken seja inválido o refreshToken é requisitado
+//Se o refresh estiver Ok então a rota gera um novo access
 export async function getUser() {
   try {
     const response = await fetch("http://127.0.0.1:3000/users", {
@@ -53,38 +59,39 @@ export async function getUser() {
         "Content-Type": "application/json",
       },
     });
-      if (!response.ok) {
-        const refreshResponse = await fetch("http://127.0.0.1:3000/refresh", {
+    if (!response.ok) {
+      const refreshResponse = await fetch("http://127.0.0.1:3000/refresh", {
         method: "GET",
         credentials: "include",
         headers: {
-        "Content-Type": "application/json",
+          "Content-Type": "application/json",
         },
-        });
-      if(refreshResponse.ok) {
-        console.log("Token renovado com sucesso");
+      });
+      if (refreshResponse.ok) {
         const retry = await fetch("http://127.0.0.1:3000/users", {
           method: "GET",
           credentials: "include",
         });
         return await retry.json();
       } else {
-        console.log("Erro ao renovar token");
+        alert("Erro: logue-se novamente");
+        window.location.href = "./index.html";
       }
-      }
+    }
     const data = await response.json();
     console.log("Usuario logado: ", data);
     return data;
-
-    } catch (error) {
+  } catch (error) {
     console.error("Error:", error);
   }
 }
 
+//Request pra logout
+
 export async function logoutUser() {
   try {
     const response = await fetch("http://127.0.0.1:3000/logout", {
-      method: "POST",
+      method: "GET",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -93,9 +100,109 @@ export async function logoutUser() {
     const data = await response.json();
     console.log("Usuario deslogado: ", data);
     localStorage.setItem("loggedUser", "false");
+    alert("Você foi deslogado!")
+    window.location.href = "index.html";
     return data;
   } catch (error) {
     console.error("Error:", error);
   }
 }
 
+// Adicionar novo produto
+
+export async function addProduct(productData) {
+  try {
+    const response = await fetch("http://127.0.0.1:3000/products/addproduct", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(productData),
+    });
+
+    const data = await response.json();
+    console.log("Produto criado: ", data);
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+//Listar produto
+export async function getProduct() {
+  try {
+    const response = await fetch("http://127.0.0.1:3000/products", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    console.log("Dados: ", data);
+    return data;
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+//Listar todos os usuários
+
+export async function getUsers() {
+
+  try {
+    const response = await fetch("http://127.0.0.1:3000/userControl", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    console.log("Dados: ", data);
+    return data;
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+//Usuario atualizar seus proprios dados
+
+export async function user_updateData(userInfo) { 
+
+   try {
+    const response = await fetch("http://127.0.0.1:3000/edit", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userInfo),
+    });
+    const data = await response.json();
+    console.log("Dados: ", data);
+    return data;
+  } catch (error) {
+    console.log("Error:", error);
+  }
+
+}
+
+//Usuario mudar sua senha
+
+export async function changePass(passData) {
+   try {
+    const response = await fetch("http://127.0.0.1:3000/changePassword", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(passData),
+    });
+    return response;
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}

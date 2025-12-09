@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+
+<body>
+    <div class="page">
+        <header class="top-header">
+            <div class="header-top">
+                <div class="left-space"></div>
+                <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
+                <div class="user-menu">
+                    <button id="userButton" class="user-btn">
+                        <p class="printUser" id="name"></p>
+                    </button>
+                    <ul id="userDropdown" class="dropdown">
+                        <li><a href="./data.html">Meus Dados</a></li>
+                        <li><a href="./config">Configurações</a></li>
+                        <li id="logout"><a href="#">Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+            <nav class="navbar">
+                <ul id="mainnavbar" class="nav-links">
+                    <li><a href="main.html">Início</a></li>
+                    <li><a href="#">Meus Produtos</a></li>
+                    <li><a href="#">Ajuda</a></li>
+                    <li><a href="#">Sobre Nós</a></li>
+                </ul>
+            </nav>
+
+        </header>
+        <div class="content">
+            <form class="products">
+                <div class="productsHeader2">
+                    <a href="./productControl.html"><img class="icon" src="./assets/return.png" alt="Retornar"></a>
+                    <button type="button" id="add" class="btnMain">Adicionar Produto</button>
+                    <h2></h2>
+                    <input id="searchProduct" type="search" placeholder="Pesquise aqui um produto">
+                </div>
+                <table id="productTable" class="table-products">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Preço</th>
+                            <th>Quantidade</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                    </tbody>
+                </table>
+                <h3 id="noProducts" style="display: none;">Ops! Esse usuário não tem nenhum produto... Adicione no botão acima</h3>
+            <div id="pagination" class="pagination"></div>
+            </form>
+        </div>
+    </div>
+    <script type="module" src="/frontend/js/pages/edit_userProducts.js" defer></script>
+</body>
+
+</html>

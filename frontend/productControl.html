@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+
+<body>
+    <div class="page">
+        <header class="top-header">
+            <div class="header-top">
+                <div class="left-space"></div>
+                <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
+                <div class="user-menu">
+                    <button id="userButton" class="user-btn">
+                        <p class="printUser" id="name"></p>
+                    </button>
+                    <ul id="userDropdown" class="dropdown">
+                        <li><a href="./data.html">Meus Dados</a></li>
+                        <li><a href="./config">Configurações</a></li>
+                        <li id="logout"><a href="#">Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+            <nav class="navbar">
+                <ul id="mainnavbar" class="nav-links">
+                    <li><a href="main.html">Início</a></li>
+                    <li><a href="#">Meus Produtos</a></li>
+                    <li><a href="#">Ajuda</a></li>
+                    <li><a href="#">Sobre Nós</a></li>
+                </ul>
+            </nav>
+
+        </header>
+        <div class="content">
+            <form class="products">
+                <div class="usersHeader">
+                    <a href="./controlPanel.html"><img class="icon" src="./assets/return.png" alt="Retornar"></a>
+                    <h2>Usuários - mySimple Panel</h2>
+                    <input id="searchUser" type="search" placeholder="Pesquise aqui um usuário">
+                </div>
+                <h3>Selecione o usuário no qual deseja administrar os produtos:</h3>
+                <table id="userTable" class="table-products">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>Classe</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                    </tbody>
+                </table>
+                <h3 id="noUsers" style="display: none;">Ops! Nenhum usuário cadastrado</h3>
+                <div id="pagination" class="pagination"></div>
+            </form>
+    </div>
+    <script type="module" src="/frontend/js/pages/productControl.js" defer></script>
+</body>
+
+</html>
