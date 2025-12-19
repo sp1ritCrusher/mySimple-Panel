@@ -13,7 +13,6 @@ export function validateForm(name, email, password, phone) {
   );
   const phoneValid = /^[0-9]{10,11}$/.test(phone.value);
 
-  console.log({ nameValid, emailValid, passwordValid, phoneValid });
   return { nameValid, emailValid, passwordValid, phoneValid };
 }
 
@@ -58,7 +57,6 @@ export function showproductError(input, message) {
 
 export function clearError(input) {
   let p = document.getElementById(`error-${input.id}`);
-  console.log("cleaning", p, "from", input);
   if (p) p.remove();
 }
 

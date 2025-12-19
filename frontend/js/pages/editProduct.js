@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   set_linkPermissions("user");
   const params = new URLSearchParams(window.location.search);
   const productId = params.get("id");
-  console.log(productId);
 
   const name = document.getElementById("nameInput");
   const description = document.getElementById("descInput");
@@ -29,7 +28,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const data = await response.json();
     const product = data.product;
-    console.log(product);
     name.value = product.name;
     description.value = product.description;
     price.value = product.price;
@@ -45,7 +43,6 @@ function checkEqual() {
         return;
     }
 }
-  console.log(product.name);
   name.addEventListener("input", () => {
     if (name.value.trim() !== "") {
       btn.disabled = false;
@@ -97,7 +94,6 @@ function checkEqual() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updateProduct),
     });
-    console.log(result);
     const info = await result.json();
     alert(info.message);
     window.location.href = "./products.html";

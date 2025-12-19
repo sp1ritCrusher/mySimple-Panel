@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
   const productName = document.getElementById("productName");
-  console.log(productName);
   const productDescription = document.getElementById("description");
   const productPrice = document.getElementById("price");
   const productAmmount = document.getElementById("ammount");
@@ -33,8 +32,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   productName.addEventListener("blur", () => {
-    console.log("input detected");
-    console.log({ productName: productName.value });
 
     if (productName.value.trim() == "") {
       showproductError(productName, "Erro: Nome inválido");
@@ -55,8 +52,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   productDescription.addEventListener("blur", () => {
-    console.log("input detected");
-    console.log({ productName: productDescription.value });
 
     if (productDescription.value.trim() == "") {
       showproductError(productDescription, "Erro: Descrição inválida");
@@ -77,8 +72,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   productPrice.addEventListener("blur", () => {
     const { validPrice } = validateProduct(productPrice, productAmmount);
-    console.log("input detected");
-    console.log({ price: productPrice.value });
 
     if (!validPrice && productPrice.value.trim() !== " ") {
       showproductError(productPrice, "Erro: Preço inválido");
@@ -90,8 +83,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   productPrice.addEventListener("input", () => {
     const { validPrice } = validateProduct(productPrice, productAmmount);
-    console.log("input detected");
-    console.log({ price: productPrice.value });
 
     if (!validPrice && productPrice.value.trim() !== " ") {
       showproductError(productPrice, "Erro: Preço inválido");
@@ -103,8 +94,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   productAmmount.addEventListener("blur", () => {
     const { validAmmount } = validateProduct(productPrice, productAmmount);
-    console.log("input detected");
-    console.log({ Qtd: productAmmount.value });
 
     if (!validAmmount && productAmmount.value.trim() !== " ") {
       showproductError(productAmmount, "Erro: Quantia inválida");
@@ -116,8 +105,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   productAmmount.addEventListener("input", () => {
     const { validAmmount } = validateProduct(productPrice, productAmmount);
-    console.log("input detected");
-    console.log({ Qtd: productAmmount.value });
     
     if (!validAmmount && productAmmount.value.trim() !== " ") {
       showproductError(productAmmount, "Erro: Quantia inválida");
@@ -130,7 +117,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   addBtn.addEventListener("click", async (e) => {
     e.preventDefault();
-    console.log("btn clicked");
           const result = await getUser();
       const ProductData = {
         userid: result.user._id,
@@ -150,7 +136,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const result = await addProduct(ProductData);
         alert(result.message);
         window.location.href = "./products.html";
-        console.log("Server response:", result);
       } 
     } catch (error) {
         alert(error.message);

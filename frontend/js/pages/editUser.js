@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     set_linkPermissions("admin");
     const params = new URLSearchParams(window.location.search);
     const userid = params.get("id");
-
     const name = document.getElementById("nameInput");
     const email = document.getElementById("emailInput");
     const phone = document.getElementById("phoneInput");
@@ -74,6 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         e.preventDefault();
 try {
         const updateUser = {
+            id: userid,
             name: name.value,
             email: email.value,
             phone: phone.value,

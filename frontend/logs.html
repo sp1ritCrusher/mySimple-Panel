@@ -27,28 +27,36 @@
             </div>
             <nav class="navbar">
                 <ul id="mainnavbar" class="nav-links">
-                    <li><a href="main.html">Início</a></li>
+                    <li><a href="#">Início</a></li>
                     <li><a href="products.html">Meus Produtos</a></li>
                     <li><a href="#">Ajuda</a></li>
                     <li><a href="#">Sobre Nós</a></li>
                 </ul>
             </nav>
+            <div class="content">
+                <form id="logsForm" class="logsForm ">
+                    <div id="logsHeader" class="logsHeader">
+                        <div id="select">
+                            <p>Selecione o tipo de log:</p>
+                            <select class="select">
+                                <option value="all">Todos</option>
+                                <option value="admin">Administrador</option>
+                                <option value="user">Usuário</option>
+                                <option value="auth">Autenticação</option>
+                            </select>
+                        </div>
+                        <h2>Logs</h2>
+                        <input id="searchLog" type="search" placeholder="Pesquise aqui">
 
+
+                    </div>
+                    <div id="logContainer" class="logScrollBox"></div>
+                    <div id="pagination" class="pagination"></div>
+                </form>
+            </div>
+            <script type="module" src="/frontend/js/pages/logs.js" defer></script>
         </header>
-        <div class="content">
-
-            <form class="products">
-                <h2>Painel Administrativo</h2>
-                <h3>Olá Administrador, selecione uma das opções abaixo:</h3>
-                <div class="adminOptions">
-                    <button id="userPanel" class="btnMain">Administrar usuários</button>
-                    <button id="productPanel" class="btnMain">Administrar produtos</button>
-                    <a href="./logs.html"><button type="button" class="btnMain">Logs</button></a>
-                </div>
-            </form>
-        </div>
     </div>
-    <script type="module" src="/frontend/js/pages/controlPanel.js" defer></script>
 </body>
 
 </html>

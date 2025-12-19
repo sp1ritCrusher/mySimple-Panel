@@ -16,7 +16,6 @@ set_linkPermissions("user");
     
   } catch (error) {
     alert("Erro: logue-se novamente");
-    localStorage.setItem("loggedUser", "false");
     window.location.href = "index.html";
   }
   const logout = document.getElementById("logout");

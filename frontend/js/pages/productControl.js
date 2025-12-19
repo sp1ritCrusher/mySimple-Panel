@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     //paginação dinamica com innerHTML
     const result = await getUsers();
-    console.log(result.user);
     let currentPage = 1;
     const itemsPerPage = 10;
     const table = document.getElementById("userTable");9

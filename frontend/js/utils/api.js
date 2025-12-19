@@ -10,15 +10,8 @@ export async function registerUser(userData) {
       },
       body: JSON.stringify(userData),
     });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "User created sucessfully");
-    }
-
-    return await response.json();
+    return response;
   } catch (error) {
-    console.error("Error:", error);
-    throw error;
   }
 }
 
@@ -74,12 +67,11 @@ export async function getUser() {
         });
         return await retry.json();
       } else {
-        alert("Erro: logue-se novamente");
-        window.location.href = "./index.html";
+        alert("Erro: logue-se novamente!");
+        window.location.href = "./index.html"
       }
     }
     const data = await response.json();
-    console.log("Usuario logado: ", data);
     return data;
   } catch (error) {
     console.error("Error:", error);
@@ -98,7 +90,6 @@ export async function logoutUser() {
       },
     });
     const data = await response.json();
-    console.log("Usuario deslogado: ", data);
     localStorage.setItem("loggedUser", "false");
     alert("Você foi deslogado!")
     window.location.href = "index.html";
@@ -122,7 +113,6 @@ export async function addProduct(productData) {
     });
 
     const data = await response.json();
-    console.log("Produto criado: ", data);
     return data;
   } catch (error) {
     console.error("Error:", error);
@@ -140,7 +130,6 @@ export async function getProduct() {
       },
     });
     const data = await response.json();
-    console.log("Dados: ", data);
     return data;
   } catch (error) {
     console.log("Error:", error);
@@ -160,7 +149,6 @@ export async function getUsers() {
       },
     });
     const data = await response.json();
-    console.log("Dados: ", data);
     return data;
   } catch (error) {
     console.log("Error:", error);
@@ -180,9 +168,7 @@ export async function user_updateData(userInfo) {
       },
       body: JSON.stringify(userInfo),
     });
-    const data = await response.json();
-    console.log("Dados: ", data);
-    return data;
+    return response;
   } catch (error) {
     console.log("Error:", error);
   }
@@ -201,8 +187,42 @@ export async function changePass(passData) {
       },
       body: JSON.stringify(passData),
     });
-    return response;
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.log("Error:", error);
   }
+}
+
+export async function getLogs() {
+  try {
+    const result = await fetch("http://127.0.0.1:3000/logs", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+      "Content-Type": "application/json",
+      },
+    });
+    return result;
+  } catch(error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function getLog(log) {
+  try{
+      const response = await fetch(`http://127.0.0.1:3000/logs/${log}`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+      "Content-Type": "application/json",
+      },
+    });
+    if(response.ok) {
+      const data = response.json();
+      return data;
+    }
+    } catch(error) {
+      console.log(error);
+    }
 }

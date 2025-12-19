@@ -9,17 +9,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   document.querySelector("form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    console.log(currentPass.value, newPass.value);
     try {
       const passwordData = {
         userid: user.user._id,
         current: currentPass.value,
         newPass: newPass.value,
       };
-      console.log(currentPass, newPass);
       const result = await changePass(passwordData);
       const data = await result.json();
-      console.log(data);
       if(!result.ok) {
         currentPass.style.backgroundColor = "#FAD2D2";
         currentPass.value = "";

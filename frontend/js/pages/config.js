@@ -28,8 +28,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   phone.dataset.phone = result.user.phone;
 
   try {
+    //função pra detectar se algum input foi modificado e ativando/desativando o botão
+    function check_editedInputs(name, email, phone) {
+      if (
+        name.dataset.name === result.user.name &&
+        email.dataset.email === result.user.email &&
+        phone.dataset.phone === result.user.phone
+      ) {
+        btn.disabled = true;
+      } else {
+        btn.disabled = false;
+      }
+    }
 
-/* Edição dinamica de nome */
+    /* Edição dinamica de nome */
 
     document.addEventListener("click", (e) => {
       if (e.target.classList.contains("edit-name")) {
@@ -43,7 +55,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         inputName.style.display = "block";
         inputName.value = name.dataset.name;
         confirmName.addEventListener("click", async () => {
-          btn.disabled = false;
           const settedName = inputName.value;
           name.textContent = `Novo nome: ${settedName}`;
           name.dataset.name = settedName;
@@ -52,8 +63,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           name.style.display = "block";
           editName.style.display = "block";
           undo_name.style.display = "block";
+
           if (name.dataset.name === result.user.name) {
-            btn.disabled = true;
             name.textContent = `Nome: ${result.user.name}`;
             undo_name.style.display = "none";
             confirmName.style.display = "none";
@@ -64,14 +75,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
         });
         undo_name.addEventListener("click", () => {
-          btn.disabled = true;
           name.dataset.name = result.user.name;
           name.textContent = `Nome: ${result.user.name}`;
           undo_name.style.display = "none";
         });
       }
+      check_editedInputs(name, email, phone);
     });
-/* Edição dinamica de senha */
+    /* Edição dinamica de senha */
     document.addEventListener("click", (e) => {
       if (e.target.classList.contains("edit-pass")) {
         editPass.current.style.display = "block";
@@ -83,12 +94,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("labelcurrentPass").style.display = "block";
         editPass_icon.style.display = "none";
         confirmPass.style.display = "block";
-          confirmPass.addEventListener("click", (e) => {
-            
-          });
+        confirmPass.addEventListener("click", (e) => {});
       }
     });
-/* Edição dinamica de email */
+    /* Edição dinamica de email */
     document.addEventListener("click", (e) => {
       if (e.target.classList.contains("edit-email")) {
         const editEmail = document.querySelector(".icon.edit-email");
@@ -101,7 +110,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         inputEmail.style.display = "block";
         inputEmail.value = email.dataset.email;
         confirmEmail.addEventListener("click", async () => {
-          btn.disabled = false;
           const settedEmail = inputEmail.value;
           email.textContent = `Novo email: ${settedEmail}`;
           email.dataset.email = settedEmail;
@@ -111,7 +119,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           editEmail.style.display = "block";
           undo_email.style.display = "block";
           if (email.dataset.email === result.user.email) {
-            btn.disabled = true;
             email.textContent = `Nome: ${result.user.email}`;
             undo_email.style.display = "none";
             confirmEmail.style.display = "none";
@@ -122,72 +129,72 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
         });
         undo_email.addEventListener("click", () => {
-          btn.disabled = true;
           email.dataset.email = result.user.email;
           email.textContent = `Email: ${result.user.email}`;
           undo_email.style.display = "none";
         });
       }
+      check_editedInputs(name, email, phone);
     });
 
-/* Edição dinamica de telefone */
+    /* Edição dinamica de telefone */
 
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("edit-phone")) {
+        const editPhone = document.querySelector(".icon.edit-phone");
+        const undo_phone = document.querySelector(".icon.undo-phone");
+        const confirmPhone = document.querySelector(".icon.confirm-phone");
+        undo_phone.style.display = "none";
+        confirmPhone.style.display = "block";
+        phone.style.display = "none";
+        editPhone.style.display = "none";
+        inputPhone.style.display = "block";
+        inputPhone.value = phone.dataset.phone;
 
+        confirmPhone.addEventListener("click", async () => {
+          const settedPhone = inputPhone.value;
+          phone.textContent = `Novo telefone: ${settedPhone}`;
+          phone.dataset.phone = settedPhone;
+          confirmPhone.style.display = "none";
+          inputPhone.style.display = "none";
+          phone.style.display = "block";
+          editPhone.style.display = "block";
+          undo_phone.style.display = "block";
 
-document.addEventListener("click", (e) => {
-
-      if (e.target.classList.contains("edit-phone")) 
-        {
-            const editPhone = document.querySelector(".icon.edit-phone");
-            const undo_phone = document.querySelector(".icon.undo-phone");
-            const confirmPhone = document.querySelector(".icon.confirm-phone");
+          if (phone.dataset.phone === result.user.phone) {
+            phone.textContent = `Nome: ${result.user.phone}`;
             undo_phone.style.display = "none";
-            confirmPhone.style.display = "block";
-            phone.style.display = "none";
+            confirmPhone.style.display = "none";
+            phone.style.display = "block";
             editPhone.style.display = "none";
-            inputPhone.style.display = "block";
-            inputPhone.value = phone.dataset.phone;
-        
-                confirmPhone.addEventListener("click", async () => {
-                    btn.disabled = false;
-                    const settedPhone = inputPhone.value;
-                    phone.textContent = `Novo telefone: ${settedPhone}`;
-                    phone.dataset.phone = settedPhone;
-                    confirmPhone.style.display = "none";
-                    inputPhone.style.display = "none";
-                    phone.style.display = "block";
-                    editPhone.style.display = "block";
-                    undo_phone.style.display = "block";
-
-                        if (phone.dataset.phone === result.user.phone) {
-                            btn.disabled = true;
-                            phone.textContent = `Nome: ${result.user.phone}`;
-                            undo_phone.style.display = "none";
-                            confirmPhone.style.display = "none";
-                            phone.style.display = "block";
-                            editPhone.style.display = "none";
-                            inputPhone.style.display = "none";
-                            editPhone.style.display = "block";
-                        }
+            inputPhone.style.display = "none";
+            editPhone.style.display = "block";
+          }
         });
-          undo_phone.addEventListener("click", () => {
-          btn.disabled = true;
+        undo_phone.addEventListener("click", () => {
           phone.dataset.phone = result.user.phone;
           phone.textContent = `Telefone: ${result.user.phone}`;
           undo_phone.style.display = "none";
-          
         });
       }
+      check_editedInputs(name, email, phone);
     });
 
     form.addEventListener("submit", async () => {
-      const data = {
+      try {
+      const newData = {
         name: name.dataset.name,
         email: email.dataset.email,
         phone: phone.dataset.phone,
       };
-      await user_updateData(data);
-      alert("Dados atualizados!");
+      const result = await user_updateData(newData);
+      if(result.ok) {
+        const data = await result.json();
+        alert(data.message);
+      }
+       } catch(error) {
+        alert(error);
+       }
     });
   } catch (error) {
     alert("Erro: logue-se novamente");

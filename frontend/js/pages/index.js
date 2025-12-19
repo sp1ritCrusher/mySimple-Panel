@@ -4,7 +4,6 @@ import { loginUser } from "../utils/api.js";
 /* Página Inicial */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("DOM Loaded");
 
   const password = document.getElementById("pass");
   const email = document.getElementById("e-mail");

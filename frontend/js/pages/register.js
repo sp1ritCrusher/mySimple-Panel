@@ -4,7 +4,6 @@ import { registerUser } from "../utils/api.js";
 /* Registro de novo usuário */
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM Loaded");
   if (localStorage.getItem("loggedUser") === "true") {
     window.location.href = "main.html";
   }
@@ -25,8 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   name.addEventListener("blur", () => {
     const { nameValid } = validateForm(name,email,password,phone);
-    console.log("input detected");
-    console.log({ name: name.value });
 
     if (!nameValid && name.value.trim() !== " ") {
       showError(name, "Erro: nome inválido");
@@ -48,8 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   email.addEventListener("input", () => {
     const { emailValid } = validateForm(name,email,password,phone);
-    console.log("input detected");
-    console.log({ email: email.value });
 
     if (!emailValid && email.value.trim() !== "") {
       showError(email, "Erro: e-mail inválido");
@@ -61,8 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   password.addEventListener("input", () => {
     const { passwordValid } = validateForm(name,email,password,phone);
-    console.log("input detected");
-    console.log({ password: password.value });
 
     if (!passwordValid && password.value.trim() !== "") {
       showError(password, "Erro: senha inválida");
@@ -73,8 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   phone.addEventListener("input", () => {
-    console.log("input detected");
-    console.log({ phone: phone.value });
     const { phoneValid } = validateForm(name,email,password,phone);
 
     if (!phoneValid && phone.value.trim() !== "") {
@@ -87,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   btnCadastro.addEventListener("click", async (e) => {
     e.preventDefault();
-    console.log("btn clicked");
     const UserData = {
       name: name.value,
       password: password.value,
@@ -99,8 +89,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await registerUser(UserData);
       const data = await result.json();
       if(result.ok) {
-      alert("Usuário criado com sucesso");
-      window.location.href = "index.html";
+      alert(data.message);
+      window.location.href = "./index.html";
       } else {
         alert(data.message);
       }
