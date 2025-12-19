@@ -5,6 +5,8 @@ import cors from "cors";
 import { connectDB } from "./db.js";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
+import cron from "node-cron"; 
+import { exportAndClearLogs } from "./controllers/logController.js";
 
 
 const app = express();
@@ -19,6 +21,7 @@ app.use(express.json());
 connectDB();
 app.use("/", userRoutes);
 
+cron.schedule("0 0 */7 * *", exportAndClearLogs);
 
 app.listen(PORT, "127.0.0.1", () =>
   console.log(`Server running on http://127.0.0.1:${PORT}`)

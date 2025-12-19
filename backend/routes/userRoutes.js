@@ -4,6 +4,7 @@ import { addProduct, getProductById, getProducts, updateProduct, deleteProduct }
 import { verifyToken } from "../middlewares/verifyToken.js";
 import { checkRefresh } from "../controllers/authController.js";
 import { editUser, getUsers, removeUser } from "../controllers/adminController.js";
+import { getLogs, getLog } from "../controllers/logController.js";
 import { changePassword } from "../controllers/systemController.js"; 
 
 const router = express.Router();
@@ -15,7 +16,7 @@ router.post("/login", loginUser);
 router.get("/users", verifyToken, getUser);
 router.get("/users/:id", verifyToken, getUser);
 router.get("/logout", logoutUser);
-router.post("/edit", editData);
+router.post("/edit", verifyToken, editData);
 //jwt route
 router.get("/refresh", checkRefresh);
 //products route
@@ -29,4 +30,7 @@ router.get("/userControl", verifyToken, getUsers);
 router.get("/userControl/:id", verifyToken, getUser);
 router.put("/userControl/:id", verifyToken, editUser);
 router.delete("/userControl/:id", verifyToken, removeUser);
+//log routes
+router.get("/logs", verifyToken, getLogs);
+router.get("/logs/:id", verifyToken, getLog);
 export default router;
