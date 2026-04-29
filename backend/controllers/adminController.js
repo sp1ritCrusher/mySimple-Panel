@@ -1,7 +1,11 @@
-import { User } from "../models/User.js";
 import jwt from "jsonwebtoken";
-import { Log } from "../models/Logs.js"
-import { getDifferences, getIp } from "../utils/utils.js";
+import { getIp } from "../utils/utils.js"
+import * as userRepository from "../repositories/userRepository.js";
+import * as adminService from "../services/adminServices.js";
+import * as adminLog from "../logs/adminLogs.js";
+import * as systemLog from "../logs/systemLogs.js";
+import * as sessionRepository from "../repositories/sessionRepository.js";
+import { AdminError, AppError } from "../errors/AppError.js";
 
 /* Rota admimistrativa */
 
@@ -9,15 +13,33 @@ import { getDifferences, getIp } from "../utils/utils.js";
 
 export const getUsers = async (req, res) => {
   try {
-    const data = await User.find();
+    const requester = jwt.verify(req.cookies.accessToken,process.env.JWT_SECRET);
+    if(requester.power !== "admin") {
+      throw new AdminError ({
+        message: "Acesso negado",
+        status: 403,
+        code: "FORBIDDEN"
+      });
+    }
+    const data = await userRepository.getUsers();
     if (!data) {
       return res.status(404).json({ message: "Nenhum usuario encontrado" });
     }
     res.status(200).json({ message: "Usuarios encontrados", user: data });
-  } catch (error) {
-    console.error("Erro: ", error);
-    res.status(500).json({ message: "Erro ", error });
-  }
+    } catch (error) {
+      console.error("Erro: ", error);
+      systemLog.error_log(error, getIp(req));
+      if (error instanceof AppError) {
+        return res.status(error.status).json({
+          code: error.code,
+          message: error.message 
+        }); 
+    } 
+    return res.status(500).json({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Erro interno no servidor" 
+    });
+    }
 };
 
 
@@ -27,52 +49,37 @@ export const getUsers = async (req, res) => {
 
 export const editUser = async (req, res) => {
   try {
-    const user = await User.findById(req.body.id);
-    //Autorização de admin atraves do refreshToken
-    const requester = jwt.verify(req.cookies.accessToken,process.env.JWT_SECRET);
+    const target = await userRepository.findById(req.body.id);
+    const requester = jwt.verify(req.cookies.accessToken, process.env.JWT_SECRET);
+    const findSession = await sessionRepository.findOne({ user_id: requester.id });
     if (requester.power !== "admin") {
-      return res.status(400).json({ message: "Erro,você não é um admin" });
-    }
-    //validation pra email ja existente
-    const existingEmail = await User.findOne({ email: req.body.email} );
-    if (existingEmail && user.email !== req.body.email ) {
-      return res.status(400).json({ message: "Esse email já pertence a outro usuário" });
-    }
-
-    const updateuser = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+      throw new AdminError({ 
+        message: "Acesso negado",
+        status: 403,
+        code: "FORBIDDEN" });
+      }
+    const updatedTarget = await adminService.editUser(req.body.id, {
+      data: req.body,
     });
-
-    if (!updateuser) {
-      return res.status(404).json({ message: "Erro ao encontrar este usuario" });
+    await adminLog.admin_editUser(target, req.body, requester.id, requester.session, getIp(req));
+    res.status(200).json({
+        message: "Usuario Atualizado com sucesso",
+        newData: updatedTarget,
+      });
+  } catch (error) {
+    console.error("Erro: ", error);
+    systemLog.error_log(error, getIp(req));
+    if (error instanceof AppError) {
+      return res.status(error.status).json({
+        code: error.code,
+        message: error.message,
+      });
     }
-
-    const diff = getDifferences(user, updateuser);
-    const setObj = []
-    if(diff.name) {
-    setObj.push(`Mudou o nome de ${diff.name.current} para ${diff.name.new}`);
-    }
-    if(diff.email) {
-    setObj.push(`Mudou o email de ${diff.email.current} para ${diff.email.new}`);
-    }
-    if(diff.phone) {
-    setObj.push(`Mudou o telefone de ${diff.phone.current} para ${diff.phone.new}`);
-    }
-    await Log.create({
-      type: "admin",
-      actioner: `${requester.name}`,
-      target: `${user.name}`,
-      action: `O administrador ${requester.name} editou o usuário ${user.name}`,
-      data: setObj,
-      session: requester.session,
-      ip: getIp(req)
+    return res.status(500).json({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Erro interno no servidor",
     });
-    res.status(200).json({ message: "Usuario Atualizado com sucesso" });
-  } catch(error) {
-    console.log(error);
-  res.status(500).json({ message: "Erro ao atualizar usuario"});
-}
-
+  }
 };
 
 /*  Remoção de usuário  */
@@ -80,31 +87,30 @@ export const editUser = async (req, res) => {
 export const removeUser = async (req,res) => {
   //validando a identidade do requisidor
     const requester = jwt.verify(req.cookies.accessToken,process.env.JWT_SECRET);
+    console.log(requester);
+    if(requester.power !== "admin") {
+      throw new AdminError({ 
+        message: "Acesso negado",
+        status: 403,
+        code: "FORBIDDEN" });
+      }
     try{ 
-      //pegando user pelo params
-      const user = await User.findById(req.params.id).select("-password");
-      //impedindo de apagar a si mesmo
-      if(user._id.toString() == requester.id) {
-        return res.status(400).json({message:"Voce não pode apagar a si mesmo"});
-      }
-      //impedindo de apagar outro admin
-      if(user.power === "admin") {
-        return res.status(400).json({message:"Erro, voce nao pode apagar esse usuário"});
-      }
-      const removeUser = await User.findByIdAndDelete(req.params.id);
-      if(!removeUser) {
-        return res.status(400).json({message: "Erro ao deletar usuário"});
-      }
-      await Log.create({
-      type: "admin",
-      actioner: `${requester.name}`,
-      target: `${user.name}`,
-      action: `O administrador ${requester.name} removeu o usuário ${user.name}`,
-      session: requester.session,
-      ip: getIp(req)
-    });
-      res.status(200).json({message:"Usuario deletado com sucesso"}, removeUser);
+      console.log("PARAMS", req.params.id);
+      await adminLog.admin_removeUser(req.params.id, requester.id, requester.session, getIp(req));
+      const removeUser = await adminService.removeUser(requester, req.params.id);
+      res.status(200).json({message:"Usuario deletado com sucesso", removeUser}, );
     } catch(error) {
-      res.status(500).json({message: "Error"});
+      console.error("Erro: ", error);
+      systemLog.error_log(error, getIp(req));
+      if (error instanceof AppError) {
+        return res.status(error.status).json({
+          code: error.code,
+          message: error.message,
+        });
+      }
+      return res.status(500).json({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Erro interno no servidor",
+      });
     }
 }

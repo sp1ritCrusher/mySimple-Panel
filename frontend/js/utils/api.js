@@ -5,11 +5,15 @@ export async function registerUser(userData) {
   try {
     const response = await fetch("http://127.0.0.1:3000/register", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(userData),
     });
+    if(response.ok) {
+      window.location.href = "./validateCode.html";
+    }
     return response;
   } catch (error) {
   }
@@ -28,7 +32,9 @@ export async function loginUser(userData) {
     });
 
     const data = await response.json();
-    localStorage.setItem("loggedUser", "true");
+    if(data.code === "USER_NOT_VERIFIED") {
+      window.location.href = "./validateCode.html";
+    }
     if (!response.ok) {
       throw new Error(data.message || "Erro ao logar-se");
     }
@@ -90,7 +96,6 @@ export async function logoutUser() {
       },
     });
     const data = await response.json();
-    localStorage.setItem("loggedUser", "false");
     alert("Você foi deslogado!")
     window.location.href = "index.html";
     return data;
@@ -168,6 +173,7 @@ export async function user_updateData(userInfo) {
       },
       body: JSON.stringify(userInfo),
     });
+    console.log("resposta api", response);
     return response;
   } catch (error) {
     console.log("Error:", error);
@@ -187,8 +193,11 @@ export async function changePass(passData) {
       },
       body: JSON.stringify(passData),
     });
+    if(response.ok) {
+    window.location.href = "./main.html";
     const data = await response.json();
-    return data;
+    return data.message;
+    }
   } catch (error) {
     console.log("Error:", error);
   }

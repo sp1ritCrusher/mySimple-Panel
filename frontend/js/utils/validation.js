@@ -72,13 +72,21 @@ export function validateProduct(price, ammount) {
 
 //Verifica a role do usuário e manipula elementos conforme isso
 
-export async function set_linkPermissions (linkType) {
+export async function loadLink (linkType) {
 
   const result = await getUser();
   document.getElementById("name").textContent = `${result.user.name} ▼`;
   const logoutButton = document.getElementById("logout");
   logoutButton.addEventListener("click", async () => { logoutUser(); });
   const isAdmin = result.user.power === "admin";
+  if(result.user.status === "pending_email_verification") {
+    alert("Sua conta não está verificada!");
+    window.location.href = "./validateCode.html";
+  }
+  if(result.user.status === "pending_password_reset" && window.location.pathname !== "/frontend/changePass.html") {
+    alert("Você precisa definir uma nova senha!");
+    window.location.href = "./changePass.html";
+  }
   if(linkType === "admin") {
     if (!isAdmin) {
       alert("Permissão negada");

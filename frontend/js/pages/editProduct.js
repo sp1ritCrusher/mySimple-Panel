@@ -1,9 +1,9 @@
-import { set_linkPermissions } from "../utils/validation.js";
+import { loadLink } from "../utils/validation.js";
 
 /* Edição de produto pelo usuário */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  set_linkPermissions("user");
+  loadLink("user");
   const params = new URLSearchParams(window.location.search);
   const productId = params.get("id");
 
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     name.value = product.name;
     description.value = product.description;
     price.value = product.price;
-    ammount.value = product.ammount;
+    ammount.value = product.amount;
     return product;
   }
 
@@ -85,7 +85,7 @@ function checkEqual() {
       name: name.value,
       description: description.value,
       price: price.value,
-      ammount: ammount.value,
+      amount: ammount.value,
     };
 
    const result = await fetch(`http://127.0.0.1:3000/products/${productId}`, {

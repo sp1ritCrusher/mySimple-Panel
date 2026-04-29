@@ -1,12 +1,12 @@
 import { getUser, logoutUser } from "../utils/api.js";
-import { set_linkPermissions } from "../utils/validation.js";
+import { loadLink } from "../utils/validation.js";
 
 
 /* Página principal */
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-set_linkPermissions("user");
+loadLink("user");
 
   try {
     await getUser();

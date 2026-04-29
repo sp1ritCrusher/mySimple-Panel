@@ -1,9 +1,8 @@
+import * as authServices from "../services/authServices.js";
+import { AuthError, AppError } from "../errors/AppError.js";
+import * as systemLog from "../logs/systemLogs.js";
+import * as sessionRepository from "../repositories/sessionRepository.js";
 import jwt from "jsonwebtoken";
-import { Blacklist } from "../models/Blacklist.js";
-import { Log } from "../models/Logs.js"
-import { v4 as uuidv4 } from "uuid";
-import { getIp } from "../utils/utils.js";
-import { User } from "../models/User.js";
 
 /* Controle de Autenticação */
 
@@ -12,52 +11,34 @@ import { User } from "../models/User.js";
 export async function checkRefresh(req, res) {
   const token = req.cookies.refreshToken;
   if (!token) {
-    return res.status(401).json({ message: "Refresh não encontrado" });
+      throw new AuthError({ 
+      message: "Refresh não encontrado",
+      status: 401,
+      code: "UNAUTHORIZED" });
   }
-
+  
     // Atribuindo novo accessToken pelo refresh
     try {
-    const uuid = uuidv4();
-    const refresh = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const user = await User.findById(refresh.id);
-    const isvalidToken = await Blacklist.findOne({ userid: refresh.id });
-    if(!isvalidToken) {
-      await Log.create({ 
-        type: "auth",
-        actioner: `${user.name}`,
-        target: `${user.name}`,
-        action: `O usuário ${user.name} teve seu refresh Token revogado`,
-        ip: getIp(req)
+      const newaccessToken = await authServices.renew_accessToken(token);
+      res.cookie("accessToken", newaccessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 1000,
       });
-      return res.status(403).json({ message: "Erro: Token revogado"}); 
+      return res.status(200).json({ message: "Novo accessToken bem-sucedido" });
+    } catch (error) {
+      console.error("Erro: ", error);
+      //systemLog.error_log(error, getIp(req));
+      if (error instanceof AppError) {
+        return res.status(error.status).json({
+          code: error.code,
+          message: error.message,
+        });
       }
-    const newaccessToken = jwt.sign(
-      {
-        name: user.name,
-        id: user.id,
-        email: user.email,
-        power: user.power,
-        session: uuid
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-    res.cookie("accessToken", newaccessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 1000,
-    });
-    res.status(200).json({ message: "Novo accessToken bem-sucedido"});
-    await Log.create({
-        type: "auth",
-        actioner: `${user.name}`,
-        action: `O usuário ${user.name} gerou um novo access Token`,
-        data: `Nova sessão: ${uuid}`,
-        ip: getIp(req)
-    });
-  } catch (error) {
-    console.error("Erro ao verificar token:", error);
-    return res.status(403).json({ message: "Token invalido ou expirado" });
-  }
+      return res.status(500).json({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Erro interno no servidor",
+      });
+    }
 }

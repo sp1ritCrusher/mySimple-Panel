@@ -1,10 +1,10 @@
 import { getUser, logoutUser } from "../utils/api.js";
-import { set_linkPermissions } from "../utils/validation.js";
+import { loadLink } from "../utils/validation.js";
 
 /* Dados do usuário */
 
 document.addEventListener("DOMContentLoaded", async () => {
-set_linkPermissions("user");
+loadLink("user");
 
   try {
     const result = await getUser();

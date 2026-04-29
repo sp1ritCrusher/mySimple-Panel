@@ -1,11 +1,11 @@
 import { getUser, logoutUser, user_updateData } from "../utils/api.js";
-import { set_linkPermissions } from "../utils/validation.js";
+import { loadLink } from "../utils/validation.js";
 
 /* Configurações de usuário */
 // manipulação de inputs/icones
 
 document.addEventListener("DOMContentLoaded", async () => {
-  set_linkPermissions("user");
+  loadLink("user");
   const form = document.getElementById("editForm");
   const result = await getUser();
   const name = document.getElementById("nome");
@@ -188,6 +188,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         phone: phone.dataset.phone,
       };
       const result = await user_updateData(newData);
+      console.log("resultado config.js", result);
       if(result.ok) {
         const data = await result.json();
         alert(data.message);

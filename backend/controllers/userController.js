@@ -1,150 +1,125 @@
-import { User } from "../models/User.js";
-import { Blacklist } from "../models/Blacklist.js";
-import { Log } from "../models/Logs.js"
+import * as userLog from "../logs/userLogs.js"
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from "uuid";
-import { getDifferences, getIp } from "../utils/utils.js";
+import { getIp } from "../utils/utils.js";
+import * as userService from "../services/userServices.js";
+import * as userRepository from "../repositories/userRepository.js";
+import * as codeRepository from "../repositories/codeRepository.js";
+import { nanoid } from "nanoid";
+import { UserError } from "../errors/AppError.js";
+import * as systemLog from "../logs/systemLogs.js";
+import { AppError } from "../errors/AppError.js";
+
 /* Controles de usuário */
 
 /* Autenticação - login */
 
 export const loginUser = async (req, res) => {
-  const uuid = uuidv4();
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  const token = req.cookies.accessToken;
   try {
-    if (!user) {
-      return res.status(404).json({ message: "Usuário não encontrado" });
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      await Log.create({
-        type: "auth",
-        log: `Alguém digitou a senha errada para ${user.name}`,
-        ip: getIp(req)
-      })
-      return res.status(401).json({ message: "Senha invalida" });
-    }
-    //valida e remove sessão dupla
-    const alreadyLogged = await Blacklist.findOne({ userid: user._id });
-    if (alreadyLogged) {
-      await Blacklist.findOneAndDelete({ userid: user._id });
-        await Log.create({
-        type: "auth",
-        log: `Sessão reiniciada para ${user.name}`,
-        ip: getIp(req),
-        session: uuid
-      })
-    }
-
-    //atribuição de refresh/access tokens
-    const accessToken = jwt.sign(
-      {
-        name: user.name,
-        id: user._id,
-        email: user.email,
-        power: user.power,
-        session: uuid
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-    const refreshToken = jwt.sign(
-      {
-        id: user._id,
-      },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    //adiciona os dados na blacklist
-    const salt = await bcrypt.genSalt(10);
-    const addBlacklist = new Blacklist({
-      userid: user._id,
-      session: uuid,
-    });
-    await addBlacklist.save();
-
-    //Atribuição de cookies
-    res.cookie("accessToken", accessToken, {
+    const login = await userService.loginUser(req.body.email, req.body.password);
+    await userLog.user_Session(login.user, getIp(req), login.session, "login");
+    res.cookie("accessToken", login.accessToken, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
       maxAge: 60 * 60 * 1000,
     });
-    res.cookie("refreshToken", refreshToken, {
+    res.cookie("refreshToken", login.refreshToken, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    res.status(200).json({ message: "Login bem-sucedido", user});
-    await Log.create({
-        type: "auth",
-        actioner: `${user.name}`,
-        action: `O usuário ${user.name} realizou login`,
-        data: `Sessão atribuída: ${uuid}`,
-        ip: getIp(req)
-    });
+    res.status(200).json({ message: "Login bem-sucedido" });
   } catch (error) {
-    console.error("Erro ao logar:", error);
-    res.status(500).json({ message: "Erro ao logar:", error });
+    console.error("Erro: ", error);
+    systemLog.error_log(error, getIp(req));
+    if (error instanceof AppError) {
+        return res.status(error.status).json({
+          code: error.code,
+          message: error.message,
+        });
+      }
+      return res.status(500).json({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Erro interno no servidor",
+    });
   }
 };
+
 
 /* Registro de usuário */
 
 export const registerUser = async (req, res) => {
   try {
-    const salt = await bcrypt.genSalt(10);
     const { name, password, email, phone } = req.body;
-    const setObj = [];
-    const hashedPass = await bcrypt.hash(password, salt);
-    const existingUser = await User.findOne({ $or: [{ email }, { name }] });
-    if (existingUser) {
-      return res.status(400).json({ message: " Usuario ja cadastrado" });
-    }
-    const newUser = new User({ name, password: hashedPass, email, phone, power: "user", registeredProducts: 0});
-    await newUser.save();
-    setObj.push(
-      `ID: ${newUser._id}`,
-      `Nome: ${name}`,
-      `Email: ${email}`,
-      `Telefone: ${phone}`,
-    )
-    await Log.create({
-        type: "user",
-        actioner: `${name}`,
-        data: setObj,
-        action: `Usuário ${name} realizou cadastro`,
-        ip: getIp(req)
-    })
-    res
-      .status(201)
-      .json({ message: "Usuario criado com sucesso", user: newUser });
+    const newUser = await userService.createUser({name, password, email, phone});
+    await userLog.user_Register(newUser, getIp(req));
+    const nano = nanoid(6);
+    const context_Token = jwt.sign(
+      {
+        userid: newUser.id,
+        context: "register"
+      },
+      process.env.CHANGE_PASSWORD_SECRET, { expiresIn: "15m" }
+    );
+    await codeRepository.create({
+       user_id: newUser.id,
+       code: nano,
+       context: "register" });
+      res.cookie("intentionToken", context_Token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000,
+      path: "/",
+    });
+      //await mailService.sendEmail(newUser.email, "register");
+      res.status(201).json({ message: "Solicitação de cadastro concluida com sucesso", user: newUser });
   } catch (error) {
-    console.error("Erro ao registrar:", error);
-    res.status(500).json({ message: "Erro ao registrar:", error });
+    console.error("Erro: ", error);
+    systemLog.error_log(error, getIp(req));
+    if (error instanceof AppError) {
+        return res.status(error.status).json({
+          code: error.code,
+          message: error.message,
+        });
+      }
+      return res.status(500).json({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Erro interno no servidor",
+    });
   }
 };
 
 /* Listagem de usuário */
 
-
 export const getUser = async (req, res) => {
   //reutilização em rotas pra roles diferentes(user/admin)
   const id = req.params.id || req.user.id;
   try {
-    const findUser = await User.findById(id).select("-password");
-    if (!findUser) {
-      return res.status(404).json({ message: "Usuario não encontrado" });
+    const user = await userRepository.findById(id);
+    if (!user) {
+      throw new UserError({
+        message: "Usuário não verificado",
+        status: 401,
+        code: "USER_NOT_VERIFIED",
+      });
     }
-    res.status(200).json({ message: "Usuário encontrado:", user: findUser });
+    res.status(200).json({ message: "Usuário encontrado:", user: user });
   } catch (error) {
-    console.error("Erro ao encontrar usuário", error);
-    res.status(500).json({ message: "Erro ao encontrar usuário", error });
+    console.error("Erro: ", error);
+    systemLog.error_log(error, getIp(req));
+    if (error instanceof AppError) {
+        return res.status(error.status).json({
+          code: error.code,
+          message: error.message,
+        });
+      }
+      return res.status(500).json({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Erro interno no servidor",
+    });
   }
 };
 
@@ -152,23 +127,11 @@ export const getUser = async (req, res) => {
 
 export const logoutUser = async (req, res) => {
   try {
-    //Identifica user pelo refresh e apaga os dados da blacklist
-    const token = jwt.verify(req.cookies.accessToken, process.env.JWT_SECRET);
-    const decoded = jwt.verify(req.cookies.refreshToken, process.env.JWT_REFRESH_SECRET);
-    const deleteHashed = await Blacklist.findOneAndDelete({
-      userid: decoded.id,
-    });
-    if (!deleteHashed) {
-      res.status(401).json({ message: "Erro, refresh não encontrado" });
-    }
-    await Log.create({
-        type: "auth",
-        actioner: `${decoded.name}`,
-        action: `O usuário ${decoded.name} realizou logout`,
-        session: token.session,
-        ip: getIp(req)
-    })
-    //remoção dos cookies
+    const token = req.cookies.accessToken;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    await userService.logoutUser(token);
+    await userLog.user_Session(decoded, getIp(req), decoded.session, "logout");
+
     res.clearCookie("accessToken", {
       sameSite: "lax",
       secure: false,
@@ -180,41 +143,111 @@ export const logoutUser = async (req, res) => {
 
     res.status(200).json({ message: "Sucesso ao deslogar" });
   } catch (error) {
-    console.log("Erro ao deslogar: ", error);
-    res.status(500).json({ message: "Erro ao deslogar", error });
+    console.error("Erro: ", error);
+    systemLog.error_log(error, getIp(req));
+    if (error instanceof AppError) {
+        return res.status(error.status).json({
+          code: error.code,
+          message: error.message,
+        });
+      }
+      return res.status(500).json({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Erro interno no servidor",
+    });
   }
 };
 
 /* Atualização de dados do usuário */
 
-export const editData = async(req,res) => {
+export const editData = async (req, res) => {
   try {
-    const decoded = jwt.verify(req.cookies.accessToken,process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    const updateUser = await User.findByIdAndUpdate(user.id, req.body, {
-      new: true,
+    const decoded = jwt.verify(req.cookies.accessToken, process.env.JWT_SECRET);
+    const user = await userRepository.findById(decoded.id);
+    const updateUser = await userService.updateUser(user.id, req.body);
+    await userLog.user_editData(user, updateUser, getIp(req), decoded.session);
+    return res.status(200).json({ message: "Usuario atualizado com sucesso", updateUser });
+  } catch (error) {
+    systemLog.error_log(error, getIp(req));
+    console.error("Erro: ", error);
+    if (error instanceof AppError) {
+        return res.status(error.status).json({
+          code: error.code,
+          message: error.message,
+        });
+      }
+      return res.status(500).json({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Erro interno no servidor",
     });
-    const setObj = [];
-    const diff = getDifferences(user,updateUser);
-    if(diff.name) {
-      setObj.push(`Mudou o nome de "${user.name}" para "${updateUser.name}"`)
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    //compara e valida currentPass, hasheia e atualiza newPass
+    const token = jwt.verify(req.cookies.accessToken, process.env.JWT_SECRET);
+    const user = await userRepository.findById(token.id);
+    const salt = await bcrypt.genSalt(10);
+    const newPass = await bcrypt.hash(req.body.newPass, salt);
+    const checkPass = await bcrypt.compare(req.body.current, user.password_hash);
+    if(user.status === "pending_password_reset") {
+      await userLog.user_changePassword(user, token.session, getIp(req));
+      await userService.changePassword(user.id, newPass);
+      return res.status(200).json({message: `Nova senha definida para ${user.name}`})
     }
-    if(diff.email) {
-      setObj.push(`Mudou o email de "${user.email}" para "${updateUser.email}"`)
+    if (!checkPass) {
+       throw new UserError({
+        message: "Senha Incorreta",
+        status: 400,
+        code: "BAD_REQUEST",
+      });
     }
-    if(diff.phone) {
-      setObj.push(`Mudou o telefone de "${user.phone}" para "${updateUser.phone}"`)
-    }
-    await Log.create({
-        type: "user",
-        actioner: `${user.name}`,
-        action: `O usuário ${user.name} editou seus dados`,
-        data: setObj,
-        session: decoded.session,
-        ip: getIp(req)
-    })
-    return res.status(200).json( { message: "Usuario atualizado com sucesso", data: updateUser });
-  } catch(error) {
-    return res.status(500).json({message: "Erro ao atualizar os dados"}, error);
+    await userService.changePassword(user.id, newPass);
+    await userLog.user_changePassword(user, token.session, getIp(req));
+    res.status(200).json({ message: "Senha alterada com sucesso" });
+  } catch (error) {
+    systemLog.error_log(error, getIp(req));
+    console.error("Erro: ", error);
+    if (error instanceof AppError) {
+        return res.status(error.status).json({
+          code: error.code,
+          message: error.message,
+        });
+      }
+      return res.status(500).json({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Erro interno no servidor",
+    });
+  }
+};
+
+export const forgotPass = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const user = await userRepository.findByEmail(email);
+    const passForgot_request = await userService.forgotPass_process(user);
+    //await mailService.sendEmail(user.email, "forgot");
+    res.cookie("intentionToken", passForgot_request.intentionToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000,
+      path: "/",
+    });
+    return res.status(200).json({ message: "Email enviado com sucesso" });
+  } catch (error) {
+    systemLog.error_log(error, getIp(req));
+    console.error("Erro: ", error);
+    if (error instanceof AppError) {
+        return res.status(error.status).json({
+          code: error.code,
+          message: error.message,
+        });
+      }
+      return res.status(500).json({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Erro interno no servidor",
+    });
   }
 };

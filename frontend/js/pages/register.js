@@ -4,10 +4,6 @@ import { registerUser } from "../utils/api.js";
 /* Registro de novo usuário */
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (localStorage.getItem("loggedUser") === "true") {
-    window.location.href = "main.html";
-  }
-
   const name = document.getElementById("name");
   const password = document.getElementById("pass");
   const email = document.getElementById("e-mail");
@@ -88,9 +84,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const result = await registerUser(UserData);
       const data = await result.json();
+      console.log(data);
       if(result.ok) {
       alert(data.message);
-      window.location.href = "./index.html";
+      window.location.href = "./validateCode.html";
       } else {
         alert(data.message);
       }

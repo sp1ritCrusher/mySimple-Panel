@@ -1,11 +1,11 @@
 import { getUsers } from "../utils/api.js";
-import { set_linkPermissions } from "../utils/validation.js";
+import { loadLink } from "../utils/validation.js";
 
 /* Página administrativa - Listagem de todos os usuários */
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-  set_linkPermissions("admin");
+  loadLink("admin");
   try {
     // listagem/paginação dinamica com innerHTML
     const result = await getUsers();
@@ -27,14 +27,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-        <td title="${item._id}">${item._id.slice(0, 15)}...</td>
+        <td title="${item.id}">${item.id.slice(0, 15)}...</td>
         <td>${item.name}</td>
         <td>${item.email}</td>
         <td>${item.phone}</td>
         <td>${item.power}</td>
         <td class="actions">
-            <img class="icon edit-btn" src="./assets/edit.png" data-id="${item._id}">
-            <img class="icon remove-btn" src="./assets/remove.jpg" data-id="${item._id}">
+            <img class="icon edit-btn" src="./assets/edit.png" data-id="${item.id}">
+            <img class="icon remove-btn" src="./assets/remove.jpg" data-id="${item.id}">
         </td>`;
         tbody.appendChild(tr);
       });
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         (item) =>
           item.name.toLowerCase().includes(value) ||
           item.email.toLowerCase().includes(value) ||
-          item._id.toLowerCase().includes(value) ||
+          item.id.toLowerCase().includes(value) ||
           item.phone.toLowerCase().includes(value)
       );
       currentPage = 1;

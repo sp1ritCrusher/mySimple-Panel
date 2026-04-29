@@ -1,18 +1,27 @@
 import jwt from "jsonwebtoken";
-import { v4 as uuidv4 } from "uuid";
+import * as sessionRepository from "../repositories/sessionRepository.js";
 /* Verificação e proteção de rotas */
 
-export const verifyToken = (req, res, next) => {
+export const verifyToken = async (req, res, next) => { 
     const token = req.cookies.accessToken;
-    if(!token) {
-        return res.status(401).json({ message: "Token não encontrado"});
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const session = await sessionRepository.findOne({ session_id: decoded.session });
+    if(!token || !session ) {
+        return res.status(401).json({ message: "ERRO: Sessão/Token inválidos" });
     }
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
         next();
     } catch (error) {
-        console.error("Erro ao verificar token:", error)
-        return res.status(403).json( { message: "Token invalido ou expirado"});
+        if (error instanceof AppError) {
+            return res.status(error.status).json({
+                code: error.code,
+                message: error.message,
+            });
     }
-}
+    return res.status(500).json({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Erro interno no servidor",
+    });
+  }
+};

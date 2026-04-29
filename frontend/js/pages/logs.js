@@ -1,8 +1,8 @@
-import { set_linkPermissions } from "../utils/validation.js";
+import { loadLink } from "../utils/validation.js";
 import { getLogs, getLog } from "../utils/api.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  set_linkPermissions("user");
+  loadLink("user");
   const result = await getLogs();
   const params = new URLSearchParams(window.location.search);
   const log_id = params.get("id");
@@ -23,8 +23,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       return "Administrador";
     } else if (log.includes("user")) {
       return "Usuário";
+    } else if(log.includes("error")) {
+      return "Erro";
+    } else if(log.includes("info")) {
+      return "Info";
     }
-  }
+}
 //valida se o objeto recebido é um token ou um elemento comum
   function token_treatment(token) {
     const para =  document.getElementById("para");
@@ -55,13 +59,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         <a href="./logs.html"><img class="icon" src="./assets/return.png" alt="Retornar"></a>
         <h2>Log</h2>
         </div>
-        <p>Log ID: ${result.log._id}</p>
+        <p>Log ID: ${result.log.id}</p>
         <p>Acionador: ${result.log.actioner}</p>
         ${result.log.target? `<p>Alvo: ${result.log.target}</p>`: ""}
        <div class="logData">
        ${result.log.data? `<strong><p>Dados:</p><p id="para">${[result.log.data].flat().join("<br>")}</p></strong>`: ""}
        </div>
-       <p>Data: ${new Date(result.log.date).toLocaleString()}</p>
+       <p>Data: ${new Date(result.log.created_at).toLocaleString()}</p>
        ${result.log.session? `<p>Sessão: ${result.log.session}</p>`: ""}
        <p>IP: ${result.log.ip}</p>
        </div>`;
@@ -76,10 +80,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       div.classList.add("logDiv");
 
       div.innerHTML = `
-      <button type="button" data-id=${log._id} class="icon">i</button>
+      <button type="button" data-id=${log.id} class="icon">i</button>
+      <p>Acionador: ${log.actioner}</p>
       <p>Classe: ${translateClass(log.type)}</p>
-      <p>Log: ${log.action}</p>
-      <p>Data: ${new Date(log.date).toLocaleString()}</p>
+      <p>Ação: ${log.action}</p>
+      <p>Data: ${new Date(log.created_at).toLocaleString()}</p>
       <hr>
     `;
 
@@ -102,19 +107,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderLogs(data.logs);
     }
     if (select.value === "admin") {
-      const filtered = data.logs.filter((item) => item.type.includes("admin"));
+      const filtered = data.logs.filter((item) => item.domain.includes("admin"));
       currentPage = 1;
       container.innerHTML = "";
       renderLogs(filtered);
     }
     if (select.value === "user") {
-      const filtered = data.logs.filter((item) => item.type.includes("user"));
+      const filtered = data.logs.filter((item) => item.domain.includes("user"));
       currentPage = 1;
       container.innerHTML = "";
       renderLogs(filtered);
     }
     if (select.value === "auth") {
-      const filtered = data.logs.filter((item) => item.type.includes("auth"));
+      const filtered = data.logs.filter((item) => item.domain.includes("auth"));
       currentPage = 1;
       container.innerHTML = "";
       renderLogs(filtered);
@@ -132,13 +137,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       const value = input.value.toLowerCase();
       container.innerHTML = "";
       const filtered = data.logs.filter((item) => {
-      const id = String(item._id).toLowerCase();
+      const id = String(item.id).toLowerCase();
       const type = String(item.type).toLowerCase();
       const log = String(item.log).toLowerCase();
       const dataField = String(item.data).toLowerCase();
       const session = String(item.session).toLowerCase();
-      const date = String(new Date(item.date).toLocaleString());
-      return ( id.includes(value) || type.includes(value) || log.includes(value) || dataField.includes(value) || session.includes(value) || date.includes(value) ); });
+      const ip = String(item.ip).toLowerCase();
+      const date = String(new Date(item.created_at).toLocaleString());
+      return ( id.includes(value) || type.includes(value) || log.includes(value) || dataField.includes(value) || session.includes(value) || date.includes(value) || ip.includes(value) ); });
       renderLogs(filtered);
 
       if(filtered.length === 0) {

@@ -1,45 +1,53 @@
-# mySimple Panel project — BETA 0.5v
+# mySimple Panel
 
-Relatório de atualização do projeto pra nova versão 0.5, contando com features novos
+Sistema de gestão de estoque SaaS com autenticação completa, controle de sessões e painel administrativo.
 
-# Introdução
+## Tecnologias
 
-Hoje venho trazer essa atualização simples, e agora o sistema conta com um sistema básico de auditoria em logs.
+- **Backend**: Node.js, Express, PostgreSQL
+- **Autenticação**: JWT (Access + Refresh Token), cookies httpOnly
+- **Segurança**: bcrypt, sessões, verificação por email
 
-# Sistema de logs
+## Funcionalidades
 
-Foi implementada na aba administrativa a verificação de logs dos eventos do sistema, incluindo login, logout, eventos como adição/edição de produtos e eventos administrativos como ediçao/remoção de usuários.
+- Cadastro com verificação de código por email
+- Login com controle de sessão
+- Recuperação de senha
+- CRUD de produtos
+- Painel administrativo completo
+- Sistema de logs com auditoria por domínio
+- Controle de status de usuário
 
-![alt text](commit-imgs/amostra-logs.png)
+## Instalação
 
-![alt text](commit-imgs/amostra-logs2.png)
+```bash
+git clone ...
+cd mysimplepanel
+npm install
+cp .env.example .env
+# configure suas variáveis de ambiente
+npm start
+```
 
-![alt text](commit-imgs/amostra-logs3.png)
+## Variáveis de Ambiente
 
-# Lógica
+```
+JWT_SECRET=
+REFRESH_SECRET=
+CHANGE_PASSWORD_SECRET=
+DATABASE_URL=
+```
 
-A lógica principal foi a criação da collection "Logs" no database, e uma distribuição de criações de Documents em todas as ações de requisição.
+## Decisões Técnicas
 
-Exemplo:
+**PostgreSQL ao invés de MongoDB**
+Migrado para suportar relações complexas futuras — funcionários, empresas, billing com planos.
 
-![alt text](commit-imgs/exemplo-criacao-document.png)
+**JWT com Access + Refresh Token**
+Access token de curta duração (1h) + refresh de longa duração (7d) com tabela de sessões no banco atrelada ao accessToken.
 
-Tentei detalhar o máximo de informações possíveis em cada log. Pra gerência dispomos de um controller no backend, onde recebemos requisições do front pra poder listar na página administrativa de logs.
+**Sistema de Logs por Domínio**
+Auditoria separada por contexto (auth, admin, product, user) para facilitar rastreabilidade.
 
-Pensando em escalabilidade, implementei através das libs "path" e "fs" um processo de exportação e limpeza dos logs no database. O servidor chama essa função a cada 7 dias, evitando o acúmulo massivo de logs no database. 
-
-![alt text](commit-imgs/export-and-clear.png)
-
-E finalmente, através da lib "node-cron" o servidor contabiliza o tempo de 7 dias pra apagar os logs. 
-
-![alt text](commit-imgs/node-cron.png)
-
-Agora a meta é implementar o ultimo passo, integração de API's externas pra poder concluir esse projetinho e passar pro próximo.
-
-# Roadmap atual
-
- [x] CRUD completo de produtos
- [x] Implementar roles simples: user / admin
- [x] Criar um sistema de logs/rastreamento de IP
- [] Implementar API's de pagamento sandbox e de email(verificação de código para mudança de senha/cadastro)
-
+**Verificação por email com Intention Token**
+Código temporário + JWT de contexto evita exposição de userid e garante ownership da verificação.

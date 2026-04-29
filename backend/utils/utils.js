@@ -1,6 +1,4 @@
 export function getDifferences(currentData, newData) {
-    currentData = currentData.toObject();
-    newData = newData.toObject();
       const diff = {};
         for (const key in newData) {
         if (newData[key] !== currentData[key]) {
@@ -15,5 +13,8 @@ export function getDifferences(currentData, newData) {
 }
 
 export function getIp(req) {
-   return req.headers["x-forwarded-for"] || req.socket.remoteAddress; 
-  }
+  const forwarded = req.headers["x-forwarded-for"];
+  const ip = forwarded ? forwarded.split(",")[0].trim() : req.socket.remoteAddress;
+  return ip || "0.0.0.0";
+}
+

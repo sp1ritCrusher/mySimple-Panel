@@ -3,14 +3,14 @@ import {
   validateProduct,
   clearError,
   showproductError,
-  set_linkPermissions
+  loadLink
 } from "../utils/validation.js";
 
 /* Adicionando Produtos */
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-  set_linkPermissions("user");
+  loadLink("user");
 
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     e.preventDefault();
           const result = await getUser();
       const ProductData = {
-        userid: result.user._id,
+        userid: result.user.id,
         name: productName.value,
         description: productDescription.value,
         price: productPrice.value,
@@ -131,6 +131,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         ProductData.userid = id;
         const result = await addProduct(ProductData);
         alert(result.message);
+        window.location.href = `./edit_userProducts.html?id=${id}`;
         } else {
 
         const result = await addProduct(ProductData);

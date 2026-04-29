@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   //Checando se o usuário já tem uma sessão iniciada 
 
-  const checkSession = await fetch("http://127.0.0.1:3000/users", {
+  /*const checkSession = await fetch("http://127.0.0.1:3000/users", {
       method: "GET",
       credentials: "include",
       headers: {
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       window.location.href = "./main.html"
 
-    }
+    }*/
 
   // Login
 
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     try {
-      const result = await loginUser(UserData);
+      await loginUser(UserData);
       window.location.href = "main.html";
     } catch (error) {
       alert(error.message);

@@ -1,11 +1,11 @@
 import { getProduct } from "../utils/api.js";
-import { set_linkPermissions } from "../utils/validation.js";
+import { loadLink } from "../utils/validation.js";
 
 /* Renderização dos produtos do usuário */
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-  set_linkPermissions("user");
+  loadLink("user");
 
   try {
 
@@ -33,10 +33,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         <td>${item.name}</td>
         <td>${item.description}</td>
         <td>${item.price} R$</td>
-        <td>${item.ammount}</td>
+        <td>${item.amount}</td>
         <td class="actions">
-            <img class="icon edit-btn" src="./assets/edit.png" data-id="${item._id}">
-            <img class="icon remove-btn" src="./assets/remove.jpg" data-id="${item._id}">
+            <img class="icon edit-btn" src="./assets/edit.png" data-id="${item.id}">
+            <img class="icon remove-btn" src="./assets/remove.jpg" data-id="${item.id}">
         </td>`;
         tbody.appendChild(tr);
       });

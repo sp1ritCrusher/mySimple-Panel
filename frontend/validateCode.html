@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mySimple Panel - Cadastro</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<header></header>
+
+<body class="mainpages">
+
+    <div id="customAlert" class="alert-box">
+        <p id="alertMessage"></p>
+        <button class="btnMain" onclick="closeAlert()">Ok</button>
+    </div>
+      <div class="infoCredentials"> 
+        <img class="logo" src="./assets/logo.png" alt="mySimple Panel">
+        <form id="registerForm">
+            <h2>Validação</h2>
+            <div id="customAlert" class="alert-box">
+                <p id="alertMessage"></p>
+                <button class="btnMain">Ok</button>
+            </div>
+            <div class="infoCredentials">
+                <label for="name">Insira o código que foi enviado ao seu email:</label><br>
+                <input type="text" placeholder="Digite o código" id="code"></input>
+            </div>
+            <div>
+            <p>Não recebeu nenhum código? <a href="#" id="resend">Clique aqui</a> para reenviar</p>
+            <button class="btnMain" id="btn" type="button">Confirmar</button>
+            <p><a href="//127.0.0.1:5500/frontend/index.html">Clique aqui</a> para retornar</p>
+            </div>
+        </form>
+    </div>
+    <script type="module" src="/frontend//js/pages/validateCode.js" defer></script>
+</body>
+<footer>© Copyright, todos os direitos reservados, 2025</footer>
+
+</html>

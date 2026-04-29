@@ -1,11 +1,11 @@
-import { set_linkPermissions } from "../utils/validation.js";
+import { loadLink } from "../utils/validation.js";
 
 
 /* Rota Administrativa pra edição dos dados de um usuário */
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    set_linkPermissions("admin");
+    loadLink("admin");
     const params = new URLSearchParams(window.location.search);
     const userid = params.get("id");
     const name = document.getElementById("nameInput");

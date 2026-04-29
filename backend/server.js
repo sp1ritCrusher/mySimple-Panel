@@ -2,7 +2,6 @@ import 'dotenv/config';
 console.log("JWT_Secret loaded:", !!process.env.JWT_SECRET);
 import express from "express";
 import cors from "cors";
-import { connectDB } from "./db.js";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import cron from "node-cron"; 
@@ -18,7 +17,6 @@ app.use(cors({
 }));
 app.use(cookieParser());
 app.use(express.json());
-connectDB();
 app.use("/", userRoutes);
 
 cron.schedule("0 0 */7 * *", exportAndClearLogs);

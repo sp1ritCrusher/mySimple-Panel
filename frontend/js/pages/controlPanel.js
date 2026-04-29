@@ -1,10 +1,10 @@
-import { set_linkPermissions } from "../utils/validation.js";
+import { loadLink } from "../utils/validation.js";
 
 /* Painel Administrativo */
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-set_linkPermissions("admin");
+loadLink("admin");
 const params = new URLSearchParams(window.location.search);;
 const admin_userPanelbtn = document.getElementById("userPanel");
 const admin_productPanelbtn = document.getElementById("productPanel");
