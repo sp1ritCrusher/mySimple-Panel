@@ -5,7 +5,6 @@ import * as userRepository from "../repositories/userRepository.js";
 import * as logRepository from "../repositories/logRepository.js";
 
 export async function product_Add(data, userid, session, ip) {
-  console.log("DATA", data);
   const requester = await userRepository.findById(userid);
   if(!requester) {
   throw new LogError({ 
@@ -66,8 +65,8 @@ export async function product_Edit(userid, data, newData, session, ip) {
     if(diff.price) {
     setData.push(`Mudou o preço de ${diff.price.current} R$ para ${diff.price.new}`)
     }
-    if(diff.ammount) {
-    setData.push(`Mudou a quantidade de ${diff.ammount.current} para ${diff.ammount.new}`)
+    if(diff.amount) {
+    setData.push(`Mudou a quantidade de ${diff.amount.current} para ${diff.amount.new}`)
     }
   if(requester.power === "admin" && data.user_id !== requester.id) {
     const target = await userRepository.findById(data.user_id);

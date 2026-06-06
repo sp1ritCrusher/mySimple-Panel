@@ -7,7 +7,6 @@ import * as logRepository from "../repositories/logRepository.js";
 export async function admin_removeUser(target, admin, session, ip) {
   const getAdmin = await userRepository.findById(admin);
   const user = await userRepository.findById(target);
-  console.log("USER:", user.id);
   if(!user) {
     throw new LogError({ 
       message: `Usuário não encontrados`,

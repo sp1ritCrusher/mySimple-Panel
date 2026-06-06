@@ -7,15 +7,17 @@ export class AppError extends Error {
   }
 }
 export class AuthError extends AppError {
-  constructor({ message, status, code }) {
-    super({ message, status, code });
+  constructor({ message, status, code, userid }) {
+    super({ message, status, code, userid });
     this.name = "AuthError";
+    this.userid = userid;
   }
 }
-export class RegisterError extends AppError {
-  constructor({ message, status, code }) {
-    super({ message, status, code });
+export class RegisterError extends AppError { 
+  constructor({ message, status, code, userid }) {
+    super({ message, status, code, userid });
     this.name = "RegisterError";
+    this.userid = userid;
   }
 }
 
@@ -23,6 +25,13 @@ export class AdminError extends AppError {
   constructor({ message, status, code }) {
     super({ message, status, code });
     this.name = "AdminError";
+  }
+}
+
+export class SystemError extends AppError {
+  constructor({ message, status, code }) {
+    super({ message, status, code });
+    this.name = "SystemError";
   }
 }
 

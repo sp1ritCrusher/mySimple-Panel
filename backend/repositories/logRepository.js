@@ -14,11 +14,11 @@ export async function createLog({ type, domain, description, actioner, target, a
     actioner,
     target,
     action,
-    data,
+    Array.isArray(data) ? JSON.stringify(data) : JSON.stringify(data),
     ip,
     session
   ];
-  console.log("VALUES", values);
+
   const { rows } = await pool.query(query, values);
   return rows[0];
 }
@@ -43,8 +43,11 @@ export async function findByOrder() {
 }
 
 export async function findAny() {
-    const query = `SELECT * FROM logs`; 
+  const query = `SELECT * FROM logs ORDER BY created_at ASC`;
+  const { rows } = await pool.query(query);
+  return rows;
+}
 
-    const { rows } = await pool.query(query);
-    return rows[0];
+export async function deleteAll() {
+  await pool.query(`DELETE FROM logs`);
 }

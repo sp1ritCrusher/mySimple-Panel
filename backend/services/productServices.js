@@ -1,12 +1,24 @@
 import { v4 as uuidv4 } from "uuid";
 import { ProductError } from "../errors/AppError.js";
+import { validateProduct, validateUser, validateProductPermission } from "../utils/utils.js";
 import * as userRepository from "../repositories/userRepository.js";
 import * as productRepository from "../repositories/productRepository.js";
 
+export async function getProductByIdService(id, userid) {
+  const user = await userRepository.findById(userid);
+  validateUser(user, ProductError);
+  const product = await productRepository.findById(id);
+  validateProduct(product);
+  validateProductPermission(user, product);
+  return product;
+}
+
 export async function addProduct({ data, userid }) {
-const code = uuidv4();
-const existingProductname = await productRepository.findByName(data.name);
-  if (existingProductname) {
+  const user = await userRepository.findById(userid);
+  const productCode  = uuidv4();
+  validateUser(user, ProductError);
+  const existingProduct = await productRepository.findByName(data.name);
+  if (existingProduct) {
     throw new ProductError({ 
       message: "Produto já existente",
       status: 409,
@@ -17,34 +29,35 @@ const existingProductname = await productRepository.findByName(data.name);
         name: data.name,
         description: data.description,
         price: data.price,
-        amount: data.ammount,
-        code: code
+        amount: data.amount,
+        code: productCode 
     });
     //await userRepository.update(data.userid, { $inc: { registeredProducts: 1 } });
     return newProduct;
 }
 
-export async function editProduct(productid, newData) {
+export async function editProduct(userid, productid, newData) {
+    const user = await userRepository.findById(userid);
+    validateUser(user, ProductError);
     const product = await productRepository.findById(productid);
-    if(!product) {
-    throw new ProductError({ 
-      message: "Produto não encontrado",
-      status: 404,
-      code: "NOT_FOUND" });
-    }
+    validateProduct(product);
+    validateProductPermission(user, product);
     const updated = await productRepository.update(productid, newData);
     return updated;
 }
 
 export async function deleteProduct(userid, productid) {
+    const user = await userRepository.findById(userid);
+    const product = await productRepository.findById(productid);
+    validateUser(user, ProductError);
+    validateProduct(product);
+    validateProductPermission(user, product);
     const deleted = await productRepository.removebyId(productid);
     return deleted;
 }
 
 export async function getProducts(userid) {
-const data = await productRepository.findAny(userid);
-    if (!data) {
-      throw new Error({ message: "Sem produtos pra esse usuário" });
-    }
-    return data;
+const user = await userRepository.findById(userid);
+validateUser(user, ProductError);
+return await productRepository.findAny(userid);
 }

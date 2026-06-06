@@ -1,0 +1,14 @@
+import { OAUTH_REDIRECT_URI } from "./appUrl.js";
+
+export const oauthProviders = {
+  google: {
+    authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
+    params: {
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      redirect_uri: OAUTH_REDIRECT_URI,
+      response_type: "code",
+      scope: "openid email profile",
+      access_type: "offline"
+    }
+  }
+};

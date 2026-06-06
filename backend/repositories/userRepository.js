@@ -6,6 +6,19 @@ export async function getUsers() {
     return rows;
 }
 
+export async function findConflicts({ email, phone }) {
+    const query = `
+        SELECT *
+        FROM users
+        WHERE email = $1
+           OR phone = $2
+    `;
+
+    const { rows } = await pool.query(query, [email, phone]);
+
+    return rows;
+}
+
 export async function findById(id) {
     const query = 
     `SELECT * FROM users
@@ -59,10 +72,13 @@ export async function findOne(data) {
 
 export async function update(id, data) {
   const fields = Object.keys(data);
+
   if (fields.length === 0) return null;
 
   const setClause = fields.map((field, index) => `${field} = $${index + 1}`).join(", ");
-  const values = [...Object.values(data), id];
+   const values = [...Object.values(data).map(v =>
+    Array.isArray(v) ? JSON.stringify(v) : v
+  ), id];
   const query = `
     UPDATE users
     SET ${setClause}
@@ -74,11 +90,31 @@ export async function update(id, data) {
   return rows[0];
 }
 
+export async function addProvider(userId, newProvider) {
+  const user = await findById(userId);
+  const currentProviders = user.provider || [];
+  const updatedProviders = [...new Set([...currentProviders, newProvider])];
+
+  await update(userId, { provider: updatedProviders });
+
+  return updatedProviders;
+}
+
+export async function getProvider(userid) {
+  
+    const query = 
+    `SELECT * FROM users_providers
+     WHERE user_id = $1`; 
+
+    const { rows } = await pool.query(query, [userid]);
+    return rows[0];
+}
+
 
 export async function create(user) {
 const query = `
-    INSERT INTO users (name, email, password_hash, phone, status, power)
-    VALUES ($1,$2,$3,$4,$5,$6)
+    INSERT INTO users (name, email, password_hash, phone, status, power, provider)
+    VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb)
     RETURNING *
   `;
 
@@ -89,6 +125,7 @@ const query = `
     user.phone,
     user.status,
     user.power,
+    user.provider
   ];
 
   const { rows } = await pool.query(query, values);

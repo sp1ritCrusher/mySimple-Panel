@@ -1,16 +1,57 @@
-import { LogError } from "../errors/AppError.js";
+import { LogError, SystemError } from "../errors/AppError.js";
 import { LogDomains } from "../logs/logDomains.js";
+import { validateUser } from "../utils/utils.js";
 import * as userRepository from "../repositories/userRepository.js";
 import * as logRepository from "../repositories/logRepository.js";
 
+export async function systemCode_Request(userid, context, ip) {
+  const user = await userRepository.findById(userid);
+  validateUser(user, LogError);
+
+  const contextMessages = {
+  forgot: "Código de recuperação de senha",
+  register: "Código de registro",
+  merge: "Código de mesclagem de provedores para autenticação"
+  };
+  const data = [contextMessages[context]];
+
+  return logRepository.createLog({
+      type: "info",
+      domain: LogDomains.SYSTEM,
+      description: "sent-code",
+      actioner: user.name,
+      action: `O sistema gerou um código de verificação para o usuário ${user.name}`,
+      data: data,
+      ip,
+  });
+}
+
+export async function system_resendCode(userid, context, ip) {
+  
+  const user = await userRepository.findById(userid);
+  validateUser(user, LogError);
+
+  const contextMessages = {
+    forgot: "Código de recuperação de senha",
+    register: "Código de registro",
+    merge: "Código de mesclagem de provedores para autenticação"
+  };
+  const data = [contextMessages[context]];
+  
+      return logRepository.createLog({
+        type: "info",
+        domain: LogDomains.SYSTEM,
+        description: "resend-code",
+        actioner: user.name,
+        action: `O sistema reenviou um código de verificação para o usuário ${user.name}`,
+        data: data,
+        ip,
+  });
+}
+
 export async function system_sentEmail(userid, response, ip) {
   const user = await userRepository.findById(userid);
-  if(!user) {
-  throw new LogError({ 
-    message: `Usuário não encontrado`,
-    status: 404,
-    code: "NOT_FOUND" });
-  }
+  validateUser(user, LogError);
   const data = [];
   if(response.success === true) {
     data.push("E-mail enviado com sucesso");

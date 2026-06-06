@@ -1,48 +1,32 @@
 import { AdminError } from "../errors/AppError.js";
 import * as userRepository from "../repositories/userRepository.js";
+import { getDifferences, validateUser } from "../utils/utils.js";
 
 export async function editUser(userid, { data }) {
     const user = await userRepository.findById(userid);
-    const existingEmail = await userRepository.findOne({ $or: [{ email: data.email }, { name: user.name }, { phone: user.phone }] });
-    if (existingEmail && user.email !== data.email) {
-      throw new AdminError({ 
-        message: "Esse email já pertence a outro usuário",
-        status: 409,
-        code: "EMAIL_ALREADY_EXISTS" });
-    }
-    const updateuser = await userRepository.update(userid, data, {
-      new: true,
-    });
-
-    if (!updateuser) {
-        throw new AdminError({ 
-        message: "Usuário não encontrado",
-        status: 404,
-        code: "NOT_FOUND" });
-    }
+    validateUser(user, AdminError);
+    const conflictingUsers = await userRepository.findConflicts({ email: data.email, phone: data.phone });
+    const conflicts = getConflictingFields(conflictingUsers, userid, data);
+    if (conflicts.length) {
+        throw new AdminError({
+            message: `Os seguintes campos já pertencem a outro usuário: ${conflicts.join(", ")}`,
+            status: 409,
+            code: "DATA_CONFLICT"
+        });
+    }   
+    const updateuser = await userRepository.update(user.id, data, { new: true });
     return updateuser;
-  }
+    }
 
 export async function removeUser(requester, userid) {
+    
     const user = await userRepository.findById(userid);
-    if(!user) {
-        throw new AdminError({ 
-        message: "Usuário não encontrado",
-        status: 404,
-        code: "NOT_FOUND" });
-    }
-    if (user.id == requester.id) {
+    validateUser(user, AdminError);
+    if (user.id === requester.id) {
         throw new AdminError({ 
         message: "Você não pode apagar a si mesmo",
         status: 400,
         code: "BAD_REQUEST" });
     }
-    const removeUser = await userRepository.deletebyId(userid);
-    if (!removeUser) {
-        throw new AdminError({ 
-        message: "Erro ao deletar usuário",
-        status: 400,
-        code: "BAD_REQUEST" });
+    return await userRepository.deleteById(user.id);
     }
-    return removeUser;
-}

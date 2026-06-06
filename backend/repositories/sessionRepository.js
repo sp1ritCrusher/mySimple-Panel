@@ -26,14 +26,14 @@ export async function remove(data) {
 
 export async function create(session) {
     const query = `
-        INSERT INTO sessions (user_id, token, session_id)
+        INSERT INTO sessions (user_id, provider, session_id)
         VALUES ($1,$2,$3)
         RETURNING *
         `;
 
   const values = [
     session.user_id,
-    session.token,
+    session.provider,
     session.session_id,
   ];
 

@@ -1,18 +1,13 @@
-import { LogError } from "../errors/AppError.js";
-import { getDifferences } from "../utils/utils.js";
+import { CodeError, LogError, RegisterError } from "../errors/AppError.js";
+import { getDifferences, validateUser, validateSession} from "../utils/utils.js";
 import { LogDomains } from "../logs/logDomains.js";
 import * as userRepository from "../repositories/userRepository.js";
 import * as logRepository from "../repositories/logRepository.js";
 import * as sessionRepository from "../repositories/sessionRepository.js";
 
-export async function user_Session(user, ip, session, context) {
-const findSession = await sessionRepository.findOne({ user_id: user.id });
-if(!user) {
-    throw new LogError({ 
-      message: `Usuário não encontrado`,
-      status: 404,
-      code: "NOT_FOUND" });
-}
+export async function user_Session(userid, ip, session, provider, context) {
+const user = await userRepository.findById(userid);
+validateUser(user, LogError);
 switch(context) {
 case "logout": {
     return logRepository.createLog({
@@ -20,9 +15,7 @@ case "logout": {
     domain: LogDomains.AUTH,
     description: "user-logout",
     actioner: user.name,
-    target: user.id,
-    action: `Usuário ${user.name} realizou logout`,
-    data: [`Sessão: ${session}`],
+    action: `Usuário ${user.name} realizou logout via ${provider}`,
     ip,
     session
     });
@@ -34,9 +27,7 @@ case "login":
     domain: LogDomains.AUTH,
     description: "user-login",
     actioner: user.name,
-    target: user.id,
-    action: `Usuário ${user.name} realizou login`,
-    data: [`Sessão atribuída: ${session}`],
+    action: `Usuário ${user.name} realizou login ${provider}`,
     ip,
     session
     });
@@ -44,21 +35,31 @@ case "login":
 }
 }
 
-export async function user_Register(user, ip) {
-  console.log(user);
-  if(!user) {
-    throw new LogError({ 
-      message: `Usuário não encontrado`,
-      status: 404,
-      code: "NOT_FOUND" });
-  }
+export async function user_oAuth_validation(userid, session, ip, provider) {
+
+    const user = await userRepository.findById(userid);
+    validateUser(user, RegisterError);
+    return logRepository.createLog({
+        type: "info",
+        domain: "auth",
+        description: "user-oauth-validation",
+        actioner: user.name,
+        action: `Iniciou sessão via provedor externo`,
+        data: [`Provedor: ${provider}`],
+        ip,
+        session
+  });
+}
+
+export async function user_Register(userid, ip) {
+  const user = await userRepository.findById(userid);
+  validateUser(user, RegisterError);
     return logRepository.createLog({
         type: "info",
         domain: "user",
         description: "user-register",
         actioner: user.name,
-        target: user.id,
-        action: `Usuário ${user.name} realizou solicitação de cadastro`,
+        action: "Realizou solicitação de cadastro",
         data: [`Nome: ${user.name}`, `E-mail: ${user.email}`, `Telefone: ${user.phone}`],
         ip,
         session: null
@@ -66,20 +67,17 @@ export async function user_Register(user, ip) {
 }
 
 export async function user_validateCode(userid, context, ip, session) {
-  const data = [];
+
   const user = await userRepository.findById(userid);
-  if(!user || !context) {
-    throw new LogError({ 
-      message: `Usuário/contexto não encontrados`,
-      status: 404,
-      code: "NOT_FOUND" });
-  }
-  if(context === "forgot") {
-  data.push("Mudança de senha");
-  }
-  else if(context === "register") {
-  data.push("Validação de cadastro");
-  }
+  validateUser(user, CodeError);
+  const contextMessages = {
+    forgot: "Código de recuperação de senha",
+    register: "Código de registro",
+    merge: "Código de mesclagem de provedores para autenticação"
+  };
+  const data = [contextMessages[context]];
+  data.push(`Sessão atribuída: ${session}`);
+
       return logRepository.createLog({
         type: "info",
         domain: LogDomains.USER,
@@ -93,33 +91,6 @@ export async function user_validateCode(userid, context, ip, session) {
   });
 }
 
-export async function user_resendCode(userid, context, ip) {
-  const data = [];
-  const user = await userRepository.findById(userid);
-  if(!user || !context) {
-    throw new LogError({ 
-      message: `Usuário/contexto não encontrados`,
-      status: 404,
-      code: "NOT_FOUND" });
-  }
-  if(context === "forgot") {
-  data.push("Mudança de senha");
-  }
-  else if(context === "register") {
-  data.push("Validação de cadastro");
-  }
-      return logRepository.createLog({
-        type: "info",
-        domain: LogDomains.USER,
-        description: "user-resend-code",
-        actioner: user.name,
-        target: user.id,
-        action: `Usuário ${user.name} solicitou reenvio do código de verificação`,
-        data: data,
-        ip,
-        session: null
-  });
-}
 
 export async function user_editData(user, updatedUser, ip, session)  {
     if(!user) {
@@ -156,14 +127,9 @@ export async function user_editData(user, updatedUser, ip, session)  {
   });
 }
 
-export async function user_changePassword(user, session, ip) {
-  if(!user) {
-    throw new LogError({ 
-      message: `Usuário não encontrados`,
-      status: 404,
-      code: "NOT_FOUND" });
-  }
-  if(user.status === "pending_password_reset") {
+export async function user_recoverPassword(userid, session, ip) {
+  const user = await userRepository.findById(userid);
+  validateUser(user, LogError);
         return logRepository.createLog({
         type: "info",
         domain: LogDomains.USER,
@@ -174,7 +140,11 @@ export async function user_changePassword(user, session, ip) {
         ip,
         session
   });
-  } else {
+}
+
+export async function user_changePassword(userid, session, ip) {
+  const user = await userRepository.findById(userid);
+  validateUser(user, LogError);
       return logRepository.createLog({
         type: "info",
         domain: LogDomains.USER,
@@ -186,5 +156,4 @@ export async function user_changePassword(user, session, ip) {
         ip,
         session
   });
-}
 }
