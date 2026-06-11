@@ -8,6 +8,10 @@ export function getProduct(id) {
   return apiRequest(`/products/${id}`);
 }
 
+export function loadDashboard () {
+  return apiRequest("/dashboard");
+}
+
 export function createProduct(payload) {
   return apiRequest("/products/addproduct", {
     method: "POST",

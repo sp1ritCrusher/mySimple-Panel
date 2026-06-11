@@ -73,3 +73,14 @@ export async function findAny(id) {
     const { rows } = await pool.query(query, [id]);
     return rows;
 }
+
+export async function findLast(userid) {
+  const query = `
+  SELECT * FROM products
+  WHERE user_id = $1
+  ORDER BY updated_at DESC
+  LIMIT 1;
+  `;
+  const { rows } = await pool.query(query, [userid]);
+  return rows;
+}

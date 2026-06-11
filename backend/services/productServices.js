@@ -13,6 +13,18 @@ export async function getProductByIdService(id, userid) {
   return product;
 }
 
+export async function getUser_stats(userid) {
+  const user = await userRepository.findById(userid);
+  validateUser(user, ProductError);
+  const products = await productRepository.findAny(userid);
+  const lowProducts = products.filter(p => p.amount < 5);
+  const last = await productRepository.findLast(userid);
+  console.log("PRODUCTS", products);
+  console.log("LOW", lowProducts);
+  console.log("last", last);
+  return { length: products.length, low: lowProducts, last}
+}
+
 export async function addProduct({ data, userid }) {
   const user = await userRepository.findById(userid);
   const productCode  = uuidv4();

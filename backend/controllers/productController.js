@@ -22,6 +22,14 @@ export const getProducts = async (req, res) => {
   return res.status(200).json({ message: "Produtos encontrados!", products });
   } 
 
+export const getStats = async (req, res) => {
+
+  const user = req.user;
+  const data = await productService.getUser_stats(user.id);
+  return res.status(200).json({ data });
+
+}
+
 /* Listando produto pelo ID */
 
 export const getProductById = async (req, res) => {

@@ -43,16 +43,8 @@ export default function ProfilePage() {
           <dd>{user.phone || "—"}</dd>
         </div>
         <div>
-          <dt>Status</dt>
-          <dd>{user.status}</dd>
-        </div>
-        <div>
           <dt>Provedores</dt>
           <dd>{providers}</dd>
-        </div>
-        <div>
-          <dt>Perfil</dt>
-          <dd>{user.power}</dd>
         </div>
       </dl>
     </div>

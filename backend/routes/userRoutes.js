@@ -7,7 +7,7 @@ import { validateIntention } from "../middlewares/codeMiddlewares.js";
 
 //controllers
 import { changePassword, resetPassword, getUser, registerUser, loginUser, logoutUser, editData, oAuth_loginUser } from "../controllers/userController.js"
-import { addProduct, getProductById, getProducts, updateProduct, deleteProduct } from "../controllers/productController.js";
+import { addProduct, getProductById, getProducts, updateProduct, deleteProduct, getStats } from "../controllers/productController.js";
 import { renew_accessToken } from "../controllers/authController.js";
 import { editUser, getUsers, removeUser, admin_getUser } from "../controllers/adminController.js";
 import { getLogs, getLog } from "../controllers/logController.js";
@@ -35,6 +35,7 @@ router.get("/users/:id", verifyToken, getUser);
 router.get("/logout", verifyToken, logoutUser);
 router.post("/edit", verifyToken, editData);
 //products route
+router.get("/dashboard", verifyToken, getStats);
 router.get("/products", verifyToken, getProducts);
 router.post("/products/addproduct", verifyToken, addProduct);
 router.get("/products/:id", verifyToken,getProductById);

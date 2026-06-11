@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import * as productsApi from "../api/products.js";
 export default function DashboardPage() {
 const { user } = useAuth();
-const [products, setProducts] = useState([]);
+const [products, setProducts] = useState({ length: 0, low: [], last: [] });
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
 
@@ -11,9 +11,9 @@ async function load() {
     setLoading(true);
     setError("");
     try {
-        const data = await productsApi.listProducts();
-        console.log(data);
-        setProducts(data.products || []);
+        const result = await productsApi.loadDashboard();
+        console.log(result.data);
+        setProducts(result.data);
     } catch (err) {
         setError(err.message || "Erro ao carregar produtos");
     } finally {
@@ -52,11 +52,11 @@ async function load() {
           </article>
           <article className="stat-card stat-card--placeholder">
             <span>Estoque baixo</span>
-            <strong>—</strong>
+            <strong>{products.low.map(p => (<div key={p.code}>{p.name} - {p.amount}</div>))}</strong>
           </article>
           <article className="stat-card stat-card--placeholder">
             <span>Última movimentação</span>
-            <strong>—</strong>
+            <strong>{products.last.length > 0 ? products.last[0].name : "-"}</strong>
           </article>
         </div>
       </section>
