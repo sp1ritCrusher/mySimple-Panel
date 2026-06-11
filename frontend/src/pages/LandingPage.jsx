@@ -7,7 +7,7 @@ import Button from "../components/ui/Button.jsx";
 import Input from "../components/ui/Input.jsx";
 import Alert from "../components/ui/Alert.jsx";
 import { isValidEmail, isValidPassword } from "../utils/validation.js";
-import { FRONTEND_ORIGIN } from "../config.js";
+import { FRONTEND_ORIGIN, SERVER_ORIGIN } from "../config.js";
 import { motion } from "framer-motion";
 
 export default function LandingPage() {
@@ -24,12 +24,11 @@ export default function LandingPage() {
 
   useEffect(() => {
     function onOAuthMessage(event) {
-      if (event.origin !== FRONTEND_ORIGIN) return;
+      if (event.origin !== SERVER_ORIGIN) return;
       const data = event.data;
-      console.log("DATINHA", data);
       if (!data?.code && !data?.success) return;
 
-      if (data.context === "google" && data.success) {
+      if (data.context === "google" && data.success === true) {
         refreshUser().then(() => navigate("/app"));
         return;
       }
@@ -41,7 +40,6 @@ export default function LandingPage() {
         handleOAuthConflict(data);
       }
     }
-
     window.addEventListener("message", onOAuthMessage);
     return () => window.removeEventListener("message", onOAuthMessage);
   }, [navigate, refreshUser]);
