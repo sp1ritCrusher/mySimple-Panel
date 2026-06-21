@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { AuthError } from "../errors/AppError.js";
-import { callGoogle_provider, validateUser } from "../utils/utils.js";
+import { callGoogle_provider, validateUser, validateProvider, validateSession } from "../utils/utils.js";
 import * as userRepository from "../repositories/userRepository.js";
 import * as sessionRepository from "../repositories/sessionRepository.js";
 import * as authRepository from "../repositories/authRepository.js";
@@ -36,17 +36,12 @@ export async function validateProvider_code(provider, code) {
 export async function authenticate(userid, provider) {
   const uuid = uuidv4();
   const user = await userRepository.findById(userid);
-  validateUser(user, AuthError);
-  const alreadyAuth = await sessionRepository.findOne({ user_id: user.id });
-  if (alreadyAuth) {
+  await validateUser(user, AuthError);
+  await validateProvider(provider);
+  const session = await sessionRepository.findOne({ user_id: user.id });
+  if (session) {
     await sessionRepository.remove({ user_id: user.id });
-    /*await Log.create({
-        type: "auth",
-        log: `Sessão reiniciada para ${user.name}`,
-        ip: getIp(req),
-        session: uuid,
-      });*/
-  }
+  } 
   const accessToken = jwt.sign(
     {
       name: user.name,
@@ -61,6 +56,7 @@ export async function authenticate(userid, provider) {
   const refreshToken = jwt.sign(
     {
       id: user.id,
+      session_id: uuid,
       provider
     },
     process.env.JWT_REFRESH_SECRET,
@@ -74,22 +70,19 @@ export async function renew_accessToken(token, provider) {
   const uuid = uuidv4();
   const refresh = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
   const user = await userRepository.findById(refresh.id);
-  validateUser(user, AuthError);
-  const session = await sessionRepository.findOne({ user_id: refresh.id });
+  await validateUser(user, AuthError);
+  const session = await sessionRepository.findOne({ session_id: refresh.session_id });
+  await validateSession(session);
   const newAccessToken = jwt.sign(
     {
       name: user.name,
       id: user.id,
       email: user.email,
       power: user.power,
-      session: uuid,
+      session: refresh.session_id,
     },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
-    if(session) {
-    await sessionRepository.remove({ user_id: user.id });
-    await sessionRepository.create({ user_id: user.id, provider, session_id: uuid });
-  }
   return newAccessToken;
 }

@@ -62,3 +62,10 @@ export class UserError extends AppError {
     this.name = "UserError";
   }
 }
+
+export class EmailError extends AppError {
+  constructor({ message, status, code }) {
+    super({ message, status, code });
+    this.name = "EmailError";
+  }
+}

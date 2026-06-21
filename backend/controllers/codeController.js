@@ -6,7 +6,6 @@ import * as userRepository from "../repositories/userRepository.js";
 import * as authServices from "../services/authServices.js";
 import * as codeServices from "../services/codeServices.js";
 import * as userService from "../services/userServices.js";
-import * as mailService from "../services/mailServices.js";
 import * as userLog from "../logs/userLogs.js";
 import * as systemLog from "../logs/systemLogs.js";
 import * as codeRepository from "../repositories/codeRepository.js";
@@ -24,7 +23,6 @@ export async function resendCode(req, res) {
     const decoded = req.decoded;
     const resendCode = await codeServices.setCode_byIntention(decoded.userid, decoded.context);
     setIntention_token(res, resendCode);
-    //email_response = await mailService.sendEmail(user.email, "register");
     await systemLog.system_resendCode(decoded.userid, decoded.context, getIp(req));
     return res.status(200).json({ message: "Código Reenviado com sucesso" });
   } 

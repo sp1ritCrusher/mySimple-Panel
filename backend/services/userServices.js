@@ -4,8 +4,7 @@ import redisClient from "../config/redis.js";
 import { nanoid } from "nanoid";
 import { AuthError, RegisterError, UserError } from "../errors/AppError.js";
 import { oauthProviders } from "../config/providers.js";
-import { validateSession, validateUser, getConflictingFields } from "../utils/utils.js";
-import * as codeServices from "./codeServices.js";
+import { validateSession, validateUser, getConflictingFields, validatePassword, validateGoogleProviderLink, validateProviderStatus } from "../utils/utils.js";
 import * as authServices from "./authServices.js";
 import * as userRepository from "../repositories/userRepository.js";
 import * as sessionRepository from "../repositories/sessionRepository.js";
@@ -15,7 +14,7 @@ import * as authRepository from "../repositories/authRepository.js";
 export async function findUserByEmail(email) {
 
     const user = await userRepository.findByEmail(email);
-    validateUser(user, UserError);
+    await validateUser(user, UserError);
     return user;
 }
 
@@ -23,6 +22,7 @@ export async function createUser({ context, name, email, phone, password, provid
   switch(context) {
     //LOCAL REGISTER
     case "local":
+      await validatePassword(password);
       const salt = await bcrypt.genSalt(10);
       const hashedPass = await bcrypt.hash(password, salt);
       const existingUser = await userRepository.findByEmail(email);
@@ -70,29 +70,32 @@ export async function createUser({ context, name, email, phone, password, provid
       status: "active"
     });
     return googleUser;
+    default:
+      throw new RegisterError({ message: "ERRO, contexto inválido", status: 401, code: "INVALID_CONTEXT" })
+      break;
   }
 }
 
 export async function logoutUser(userid) {
   const user = await userRepository.findById(userid);
-  validateUser(user, UserError);
+  await validateUser(user, UserError);
   const session = await sessionRepository.findOne({ user_id: user.id });
-  validateSession(session);
+  await validateSession(session);
   await sessionRepository.remove({ user_id: user.id });
   return { session_id: session.session_id, provider: session.provider };
 }
 
 export async function getUser_byId(userid) {
   const user = await userRepository.findById(userid);
-  validateUser(user, UserError);
+  await validateUser(user, UserError);
   return user;
 }
 
 export async function updateUser(userid, newData) {
   const user = await userRepository.findById(userid);
-  validateUser(user, UserError);
+  await validateUser(user, UserError);
   const session = await sessionRepository.findOne({ user_id: user.id });
-  validateSession(session);
+  await validateSession(session);
   const conflictingUsers = await userRepository.findConflicts({ email: newData.email, phone: newData.phone });
   const conflicts = getConflictingFields(conflictingUsers, userid, newData);
     if (conflicts.length) {
@@ -101,7 +104,7 @@ export async function updateUser(userid, newData) {
             status: 409,
             code: "DATA_CONFLICT"
         });
-    }  
+  }  
   const updatedData = await userRepository.update(user.id, newData, { new: true, });
   return { updatedData, session: session.session_id };
 }
@@ -110,7 +113,6 @@ export async function authProvider_redirect(provider) {
   const providerConfig = oauthProviders[provider];
   if (!providerConfig) throw new AuthError({ message: "Provider inválido", status: 404, code: "INVALID_PROVIDER" });
   const redirectUrl = providerConfig.authUrl + "?" + new URLSearchParams(providerConfig.params);
-  console.log(redirectUrl);
   return redirectUrl;
 }
 
@@ -118,36 +120,14 @@ export async function oAuth_loginUser({ provider, name, email, providerId }) {
   switch(provider) {
     case "google":
     const user = await userRepository.findByEmail(email);
-      if(!user) {
-        const newUser = await createUser({ context: "google", name, email, provider_sub: providerId });
-        const auth = await authServices.authenticate(newUser.id, "google");
-        return auth;
-      }
+    if(!user) {
+      const newUser = await createUser({ context: "google", name, email, provider_sub: providerId });
+      return await authServices.authenticate(newUser.id, "google");
+    }
     const userProvider = await authRepository.findOne({ user_id: user.id });
-    if(user.provider.includes("local") && !user.provider.includes("google")) {
-      if(!userProvider) {
-      await authRepository.create({
-      user_id: user.id,
-      provider: "google",
-      provider_sub: providerId,
-      status: "pending_code_validation"
-      });
-      }
-      throw new AuthError({
-        message: "Esse usuário já está registrado localmente",
-        status: 401,
-        code: "USER_LOCAL_REGISTERED",
-        userid: user.id
-      });
-    }
-    if(userProvider.status === "pending_code_validation") {
-      throw new AuthError({
-        message: "Erro: provedor não validado",
-        status: 401,
-        code: "PROVIDER_NOT_VALIDATED",
-        userid: user.id
-      })
-    }
+    await validateGoogleProviderLink(user, userProvider, providerId);
+    await validateProviderStatus(userProvider, user);
+
     if(userProvider.status === "active" && userProvider.provider_sub === providerId) {
     const auth = await authServices.authenticate(user.id, "google");
     return auth;
@@ -164,7 +144,7 @@ export async function oAuth_loginUser({ provider, name, email, providerId }) {
 
 export async function local_loginUser({ email, password }) {
   const user = await userRepository.findByEmail(email);
-  validateUser(user);
+  await validateUser(user, UserError);
   if(!user.password_hash) {
       throw new AuthError({
       message: "ERRO: Senha Inválida",
@@ -193,11 +173,11 @@ export async function local_loginUser({ email, password }) {
 
 export async function changePassword(userid, currentPass, newPass) {
   const user = await userRepository.findById(userid);
-  validateUser(user, UserError);
+  await validateUser(user, UserError);
   const salt = await bcrypt.genSalt(10);
   const new_hashedPass = await bcrypt.hash(newPass, salt);
   const session = await sessionRepository.findOne({ user_id: user.id });
-  validateSession(session);
+  await validateSession(session);
   const checkPass = await bcrypt.compare(currentPass, user.password_hash);
   if (!checkPass) {
       throw new UserError({
@@ -213,11 +193,9 @@ export async function changePassword(userid, currentPass, newPass) {
 export async function resetPassword(userid, newPass) {
 
   const user = await userRepository.findById(userid);
-  validateUser(user, UserError);
+  await validateUser(user, UserError);
   const session = await sessionRepository.findOne({ user_id: user.id });
-  validateSession(session);
-  const salt = await bcrypt.genSalt(10);
-  const new_hashedPass = await bcrypt.hash(newPass, salt);
+  await validateSession(session);
   if(user.status !== "pending_password_reset") {
     throw new UserError({
       message: "ERRO: Esse usuário não requere recuperação de senha",
@@ -225,6 +203,9 @@ export async function resetPassword(userid, newPass) {
       code: "INVALID_REQUEST"
     })
   }
+  const salt = await bcrypt.genSalt(10);
+  const new_hashedPass = await bcrypt.hash(newPass, salt);
+
   await userRepository.update(user.id, {status: "verified", password_hash: new_hashedPass});
   return session.session_id;
 }

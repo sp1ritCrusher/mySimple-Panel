@@ -5,7 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "start": "node server.js"
   },
   "keywords": [],
@@ -25,7 +25,9 @@
     "node-cron": "^4.2.1",
     "pg": "^8.18.0",
     "redis": "^5.12.1",
+    "resend": "^6.12.4",
     "uuid": "^13.0.0",
+    "vitest": "^4.1.9",
     "ws": "^8.20.1"
   }
 }

@@ -3,6 +3,7 @@ import redisClient from "../config/redis.js";
 import { nanoid } from "nanoid";
 import { CodeError } from "../errors/AppError.js";
 import { validateUser, ensureCode } from "../utils/utils.js";
+import * as mailServices from "../services/mailServices.js";
 import * as userRepository from "../repositories/userRepository.js";
 import * as codeRepository from "../repositories/codeRepository.js";
 import * as authRepository from "../repositories/authRepository.js";
@@ -109,5 +110,9 @@ export async function setCode_byIntention(userid, context) {
     { expiresIn: "15m" },
   );
   await generateCode(user.id, context);
+  const email = await mailServices.sendEmail(user.email, context);
+  if(!email) {
+    throw new CodeError({ message: "Erro ao enviar email", status: 500, code: "EXTERNAL_SERVER_ERROR"})
+  }
   return intentionToken;
 }

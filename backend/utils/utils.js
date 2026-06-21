@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
-import { AppError, AuthError, CodeError, ProductError } from "../errors/AppError.js";
+import { AppError, AuthError, CodeError, ProductError, RegisterError } from "../errors/AppError.js";
 import { OAUTH_REDIRECT_URI } from "../config/appUrl.js";
 import * as authServices from "../services/authServices.js";
+import * as authRepository from "../repositories/authRepository.js";
 
 export function getDifferences(currentData, newData) {
       const diff = {};
@@ -134,6 +135,16 @@ export async function validateSession(session) {
   }
 }
 
+export async function validatePassword(password) {
+  if(!password || password === null) {
+    throw new RegisterError({
+      message: "Senha inválida",
+      status: 403,
+      code: "INVALID_PASSWORD"
+    })
+  }
+}
+
 export function getConflictingFields(users, userid, data) {
     const conflicts = new Set();
 
@@ -153,6 +164,41 @@ export function getConflictingFields(users, userid, data) {
     return [...conflicts];
 }
 
-export async function validateProvider(userid) {
-  
+export async function validateGoogleProviderLink(user, provider, providerId) {
+      if(user.provider.includes("local") && !user.provider.includes("google")) {
+        if(!provider) {
+        await authRepository.create({
+        user_id: user.id,
+        provider: "google",
+        provider_sub: providerId,
+        status: "pending_code_validation"
+        });
+        }
+        throw new AuthError({
+          message: "Esse usuário já está registrado localmente",
+          status: 401,
+          code: "USER_LOCAL_REGISTERED",
+          userid: user.id
+        });
+      }
+      }
+
+export async function validateProviderStatus(provider, user) {
+      if(provider.status === "pending_code_validation") {
+        throw new AuthError({
+          message: "Erro: provedor não validado",
+          status: 401,
+          code: "PROVIDER_NOT_VALIDATED",
+          userid: user.id
+        })
+      }
+}
+
+export async function validateProvider(provider) {
+  if(provider !== "google" && provider !== "local") {
+    throw new AuthError({ 
+        message: "Provider Inválido",
+        status: 404,
+        code: "INVALID_PROVIDER" });
+  }
 }

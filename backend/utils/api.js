@@ -1,13 +1,14 @@
-import sgMail from "@sendgrid/mail";
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+import { Resend } from 'resend';
+import { EmailError } from '../errors/AppError.js';
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function provider_sendEmail(msg) {
-  try {
-    await sgMail.send(msg);
-    console.log("Email enviado com sucesso");
-    return { success: true };
-  } catch (error) {
-    console.error("Erro ao enviar email:", error);
-    return { success: false, error };
-  }
+    const { data, error } = await resend.emails.send(msg);
+    if (error) {
+      throw new EmailError({
+        message: "Erro no provedor de email",
+        status: 500,
+        code: "EXTERNAL_SERVER_ERROR"})
+    }
+    return data;
 }

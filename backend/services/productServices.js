@@ -19,9 +19,6 @@ export async function getUser_stats(userid) {
   const products = await productRepository.findAny(userid);
   const lowProducts = products.filter(p => p.amount < 5);
   const last = await productRepository.findLast(userid);
-  console.log("PRODUCTS", products);
-  console.log("LOW", lowProducts);
-  console.log("last", last);
   return { length: products.length, low: lowProducts, last}
 }
 
