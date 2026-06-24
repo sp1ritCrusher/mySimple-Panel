@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import redisClient from "../config/redis.js";
 import { nanoid } from "nanoid";
 import { CodeError } from "../errors/AppError.js";
-import { validateUser, ensureCode } from "../utils/utils.js";
+import { validateUser, ensureCode, validateProduct, validateProvider, ensure_authProvider } from "../utils/utils.js";
 import * as mailServices from "../services/mailServices.js";
 import * as userRepository from "../repositories/userRepository.js";
 import * as codeRepository from "../repositories/codeRepository.js";
@@ -10,9 +10,11 @@ import * as authRepository from "../repositories/authRepository.js";
 
 
 export async function generateCode(userid, context) {
-    const nano = nanoid(6);
+  const user = await userRepository.findById(userid);
+  await validateUser(user, CodeError);
+  const nano = nanoid(6);
     return await codeRepository.create({
-      user_id: userid,
+      user_id: user.id,
       code: nano,
       context });
 }
@@ -20,9 +22,10 @@ export async function generateCode(userid, context) {
 export async function validateCode(userid, context, code) {
     const codeRecord = await codeRepository.findOne({ code });
     const user = await userRepository.findById(userid);
-    validateUser(user, CodeError);
+    await ensureCode(codeRecord);
+    await validateUser(user, CodeError);
     const currentProvider = await getCurrentProvider(user.id);
-    ensureCode(codeRecord);
+    console.log(currentProvider);
     if (codeRecord.user_id !== user.id) {
       throw new CodeError({ 
         message: "Código inválido/não encontrado",
@@ -59,10 +62,11 @@ export async function validateCode(userid, context, code) {
 export async function resendCode(userid, context) {
 
    const user = await userRepository.findById(userid);
-   validateUser(user, CodeError);
+   await validateUser(user, CodeError);
    await codeRepository.deleteOne({ user_id: user.id });
    return await setCode_byIntention(user.id, context);
 }
+
 export async function getCurrentProvider(userid) {
   const user = await userRepository.getProvider(userid);
   if(!user) {
@@ -75,11 +79,12 @@ export async function getCurrentProvider(userid) {
 
 export async function mergeProviders(userid) {
   const user = await userRepository.findById(userid);
-  validateUser(user, CodeError);
+  await validateUser(user, CodeError);
   const provider = await authRepository.findOne({ user_id: user.id });
+  await ensure_authProvider(provider);
   if(user.provider.includes("local") && !user.provider.includes("google")) {
     await userRepository.addProvider(userid, "google");
-    await authRepository.update(provider.id, { status: "active"});
+    await authRepository.update(provider.id, { status: "active" });
     return "google";
   }
   if(user.provider.includes("google") && !user.provider.includes("local")) {
@@ -96,7 +101,7 @@ export async function mergeProviders(userid) {
 export async function setCode_byIntention(userid, context) {
 
   const user = await userRepository.findById(userid);
-  validateUser(user, CodeError);
+  await validateUser(user, CodeError);
   const codeRecord = await codeRepository.findOne({ user_id: user.id });
   if (codeRecord) {
     await codeRepository.deleteOne({ code: codeRecord.code });

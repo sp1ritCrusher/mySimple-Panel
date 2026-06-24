@@ -202,3 +202,12 @@ export async function validateProvider(provider) {
         code: "INVALID_PROVIDER" });
   }
 }
+
+export async function ensure_authProvider(provider) {
+  if(!provider) {
+    throw new AuthError({ 
+      message: "Provider Inválido",
+      status: 404,
+      code: "INVALID_PROVIDER" });
+  }
+}

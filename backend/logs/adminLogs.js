@@ -13,8 +13,6 @@ export async function admin_removeUser(target, admin, session, ip) {
       status: 404,
       code: "NOT_FOUND" });
   }
-  console.log("typeof target:", typeof target, target);
-  console.log("typeof userid:", typeof user.id, user.id);
   return logRepository.createLog({
         type: "info",
         domain: LogDomains.ADMIN,

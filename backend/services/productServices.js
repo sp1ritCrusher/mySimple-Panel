@@ -24,8 +24,8 @@ export async function getUser_stats(userid) {
 
 export async function addProduct({ data, userid }) {
   const user = await userRepository.findById(userid);
+  await validateUser(user, ProductError);
   const productCode  = uuidv4();
-  validateUser(user, ProductError);
   const existingProduct = await productRepository.findByName(data.name);
   if (existingProduct) {
     throw new ProductError({ 
@@ -47,26 +47,26 @@ export async function addProduct({ data, userid }) {
 
 export async function editProduct(userid, productid, newData) {
     const user = await userRepository.findById(userid);
-    validateUser(user, ProductError);
+    await validateUser(user, ProductError);
     const product = await productRepository.findById(productid);
-    validateProduct(product);
-    validateProductPermission(user, product);
+    await validateProduct(product);
+    await validateProductPermission(user, product);
     const updated = await productRepository.update(productid, newData);
     return updated;
 }
 
 export async function deleteProduct(userid, productid) {
     const user = await userRepository.findById(userid);
+    await validateUser(user, ProductError);
     const product = await productRepository.findById(productid);
-    validateUser(user, ProductError);
-    validateProduct(product);
-    validateProductPermission(user, product);
+    await validateProduct(product);
+    await validateProductPermission(user, product);
     const deleted = await productRepository.removebyId(productid);
     return deleted;
 }
 
 export async function getProducts(userid) {
 const user = await userRepository.findById(userid);
-validateUser(user, ProductError);
+await validateUser(user, ProductError);
 return await productRepository.findAny(userid);
 }
