@@ -29,5 +29,5 @@ export async function removeUser(requesterid, userid) {
         status: 400,
         code: "BAD_REQUEST" });
     }
-    return await userRepository.deleteById(user.id);
+    return await userRepository.deletebyId(user.id);
     }

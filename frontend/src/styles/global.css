@@ -546,6 +546,27 @@ linear-gradient(135deg, #27BBF5 0%, #2ec0f7 60%, #56d1ff 100%);
   overflow: auto;
 }
 
+.back-button {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #f3f4f6;
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.back-button:hover {
+    background: #e5e7eb;
+}
+
 .page-header {
   display: flex;
   align-items: flex-end;
@@ -554,6 +575,13 @@ linear-gradient(135deg, #27BBF5 0%, #2ec0f7 60%, #56d1ff 100%);
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
+
+.page-header__left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 
 .page-header__eyebrow {
   text-transform: uppercase;
@@ -584,6 +612,65 @@ linear-gradient(135deg, #27BBF5 0%, #2ec0f7 60%, #56d1ff 100%);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, .45);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+}
+
+.modal-card {
+  width: 420px;
+  max-width: 90vw;
+
+  background: #fff;
+
+  border-radius: 14px;
+
+  padding: 24px;
+
+  box-shadow: 0 15px 40px rgba(0,0,0,.25);
+}
+
+.modal-card h2 {
+  margin: 0 0 12px;
+}
+
+.modal-card p {
+  color: #555;
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-secondary {
+  background: #eee;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background: #ddd;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #b02a37;
 }
 
 .stat-card {

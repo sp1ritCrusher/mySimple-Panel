@@ -5,6 +5,7 @@ export async function provider_sendEmail(msg) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { data, error } = await resend.emails.send(msg);
     if (error) {
+      console.log(error);
       throw new EmailError({
         message: "Erro no provedor de email",
         status: 500,

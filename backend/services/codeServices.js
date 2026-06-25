@@ -115,9 +115,9 @@ export async function setCode_byIntention(userid, context) {
     { expiresIn: "15m" },
   );
   await generateCode(user.id, context);
-  const email = await mailServices.sendEmail(user.email, context);
+  /*const email = await mailServices.sendEmail(user.email, context);
   if(!email) {
     throw new CodeError({ message: "Erro ao enviar email", status: 500, code: "EXTERNAL_SERVER_ERROR"})
-  }
+  }*/
   return intentionToken;
 }

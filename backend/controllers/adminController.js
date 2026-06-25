@@ -26,6 +26,7 @@ export const admin_getUser = async(req, res) => {
 
 export const editUser = async (req, res) => {
     const requester = req.user;
+    console.log(req.body);
     const target = await userRepository.findById(req.body.id);
     const updatedTarget = await adminService.editUser(req.body.id, { data: req.body });
     await adminLog.admin_editUser(target, req.body, requester.id, requester.session, getIp(req));
@@ -37,6 +38,6 @@ export const editUser = async (req, res) => {
 export const removeUser = async (req,res) => {
       const requester = req.user;
       await adminLog.admin_removeUser(req.params.id, requester.id, requester.session, getIp(req));
-      const removeUser = await adminService.removeUser(requester, req.params.id);
+      const removeUser = await adminService.removeUser(requester.id, req.params.id);
       res.status(200).json({message:"Usuario deletado com sucesso", removeUser}, );
     } 

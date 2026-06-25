@@ -37,7 +37,6 @@ export function resolveIntention({ email, context }) {
 }
 
 export function oauthCallback(body) {
-  console.log("TESTE", body)
   return apiRequest("/callback", {
     method: "POST",
     body: JSON.stringify(body),

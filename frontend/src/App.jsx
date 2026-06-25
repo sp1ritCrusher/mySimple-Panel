@@ -13,6 +13,7 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
 import ChangePasswordPage from "./pages/ChangePasswordPage.jsx";
 import AdminUsersPage from "./pages/admin/AdminUsersPage.jsx";
+import AdminUserEditPage from "./pages/admin/AdminUserEditPage.jsx";
 import AdminLogsPage from "./pages/admin/AdminLogsPage.jsx";
 import AdminLogDetailPage from "./pages/admin/AdminLogDetailPage.jsx";
 
@@ -53,6 +54,14 @@ export default function App() {
           element={
             <ProtectedRoute adminOnly>
               <AdminLogsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin/editUser/:id"
+          element={
+            <ProtectedRoute adminOnly>
+              <AdminUserEditPage />
             </ProtectedRoute>
           }
         />
